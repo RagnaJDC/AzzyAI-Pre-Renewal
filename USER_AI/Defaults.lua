@@ -24,6 +24,7 @@ AggroSP                  = 0
 OldHomunType			= 3
 UseSkillOnly			=-1 
 UseAttackSkill			=1
+UseSkillOnFollow        = 1 -- 1 = use skill when Hom/Merc following player, 0 = disable
 OpportunisticTargeting  =0
 DoNotChase				=0
 UseDanceAttack			=0

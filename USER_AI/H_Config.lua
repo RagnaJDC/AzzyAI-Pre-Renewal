@@ -11,6 +11,7 @@ AggroSP                  = 0
 OldHomunType             = 4
 UseSkillOnly             = -1 
 UseAttackSkill           = 1
+UseSkillOnFollow         = 1 -- 1 = use skill when Hom/Merc following player, 0 = disable
 OpportunisticTargeting   = 0
 DoNotChase               = 0
 UseDanceAttack           = 0
@@ -27,7 +28,7 @@ AutoDetectPlant          = 1
 FleeHP                   = 0
 DanceMinSP               = 0
 ChaseSPPause             = 0
-ChaseSPPauseSP 			= -60
+ChaseSPPauseSP           = -60
 ChaseSPPauseTime         = 3000
 RescueOwnerLowHP         = 0
 AoEFixedLevel            = 1
@@ -41,7 +42,7 @@ UseAutoPushback          = 0
 AutoPushbackThreshold    = 2
 AutoSkillDelay           = 0
 AoEMaximizeTargets       = 0
-CastTimeRatio		= .80
+CastTimeRatio            = .80
 
 --Autobuff options
 UseDefensiveBuff         = 1
@@ -70,7 +71,6 @@ DoNotUseRest             = 0
 RestXOff                 = 2
 RestYOff                 = 0	
 AoEReserveSP             = 1
-
 MoveSticky               = 0
 MoveStickyFight          = 0
 

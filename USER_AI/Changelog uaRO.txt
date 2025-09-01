@@ -1,3 +1,12 @@
+0.90 - unfinished
+⦁	Added UseSkillOnFollow to M_Config.lua and H_Config.lua 1 = use skill when Hom/Merc following player, 0 = disable
+    UseSkillOnFollow allows the Homunculus or Mercenary to use attack skills when in Follow stance and chasing a moving owner player.
+The AI will now use skills when running past enemies, this is usefull for mobs you can 1 hit for farming, allowings you to keep running and gunning.
+⦁	Changed Bow/Archer Mercenaries which have Double Strafe to use Double Strafe range as their normal attack range (9 cells for DS compared to 11 cells normal attack)
+    As normal attacks would happen before DS range was met, meaning DS could not be used as often as expected.
+⦁	Bow/Archer Mercenary skill use optimisation, if double strafe available it now skips skill selection/cycling
+    in favour of double strafe skill use only for improved skill spam.
+
 0.85
 Backported fixes and corrections ensuring private server pre-renewal compatibility from https://github.com/SpenceKonde/AzzyAI master source code version 1.56.
 Version 1.56 is not compatible with private servers on pre-renewal in Dr Azzys current AzzyAI release due to kRO homunculus AI coding changes so fixes were cherry-picked.
@@ -16,4 +25,12 @@ uaRO AzzyAI runs on source code version 1.541 with these version 1.56 fixes port
 0.80
 ⦁   Updated M_Config.lua, H_Config.lua and Const_.lua to fix a typo which caused an LUA error in game when using mercenaries. (Thank you Andrés シ) 
 
---Changelog started at version 0.80 because im bad of recording what happening and did not have a plan to begin with--
+--Changelog started at version 0.80 because im bad of recording whats happening and did not have a plan to begin with--
+
+0.00 to 0.80
+⦁   Complete renewal code removal (faster performance)
+•   Zero AI delay
+•   18-cell extended view, attack and chase range
+•   Automatic bard/dancer buff collection
+•   Enhanced friend management system
+•   Updated config GUI (AzzyAiConfigPreRe.exe) with renewal features removed and search + filtering types, with DPi scaling and readable font

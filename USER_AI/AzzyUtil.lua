@@ -1292,6 +1292,16 @@ function AttackRange(myid,skill,level)
 			a     = 1
 		elseif (mertype > 10 and mertype < 21) then
 			a     = 2 --spear mercenary
+		elseif (mertype >= 1 and mertype <= 10) then
+			-- Archer mercenary (mertype 1-10): use Double Strafe range if available
+			local doubleStrafeLevel = SkillList[MercType] and SkillList[MercType][8207] or nil
+			if doubleStrafeLevel and doubleStrafeLevel > 0 then
+				a = GetSkillInfo(8207, 2, doubleStrafeLevel) -- Use Double Strafe's attack range
+				TraceAI("Archer mercenary using Double Strafe range: "..a.." (mertype: "..mertype..")")
+			else
+				a = GetV(V_ATTACKRANGE,myid) -- Fallback to normal attack range
+				TraceAI("Archer mercenary using normal attack range: "..a.." (no Double Strafe, mertype: "..mertype..")")
+			end
 		else
 			a     = GetV(V_ATTACKRANGE,myid)
 		end

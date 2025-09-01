@@ -565,8 +565,39 @@ function	OnIDLE_ST ()
 end
 
 function	OnFOLLOW_ST ()
-
 	TraceAI ("OnFOLLOW_ST - follow try count: "..FollowTryCount.." ownerpos: "..formatpos(GetV(V_POSITION,GetV(V_OWNER,MyID))).."my pos history:"..formatmypos(10))
+	-- Skill attack check: Try to use skill on enemy in range while following (do not change state)
+	if UseSkillOnFollow == 1 and UseSkillOnly == -1 and (GetTick() >= AutoSkillTimeout) then
+		local SkillList = GetTargetedSkills(MyID)
+		local availsp = GetV(V_SP,MyID)
+		local enemies = GetEnemyList(MyID, 1)
+		-- Focused targeting: select one enemy and attack until dead/out of range
+		local aggro = 1
+		if HPPercent(MyID) <= AggroHP or SPPercent(MyID) <= AggroSP then
+			aggro = 0
+		end
+		local object = SelectEnemy(GetEnemyList(MyID, aggro))
+		if object ~= 0 then
+			MyEnemy = object
+			local tact_skill = GetTact(TACT_SKILL, MyEnemy)
+			local skill_level = tact_skill < 0 and -tact_skill or 11
+			local SkillList = GetTargetedSkills(MyID)
+			local availsp = GetV(V_SP,MyID)
+			for i, v in ipairs(SkillList) do
+				local skilltype = v[1]
+				if v[2] ~= 0 and skilltype == MAIN_ATK and IsInAttackSight(MyID, MyEnemy, v[2], v[3]) == true then
+					if (availsp - ReserveSP >= GetSkillInfo(v[2],3,math.min(v[3],skill_level))) then
+						TraceAI("Using MAIN_ATK skill while following on focused enemy:"..MyEnemy.." skill:"..v[2])
+						local slvl = v[3]
+						if skill_level ~= 11 then
+							slvl = skill_level
+						end
+						DoSkill(v[2], slvl, MyEnemy)
+					end
+				end
+			end
+		end
+	end
 	local dist = GetDistanceFromOwner(MyID)
 	if dist > GetMoveBounds() then 
 		ReturnToMoveHold = 0
@@ -666,7 +697,6 @@ function	OnFOLLOW_ST ()
 		return
 	end
 end
-
 
 function	OnCHASE_ST ()
 	MyAttackStanceX,MyAttackStanceY = 0,0
@@ -790,7 +820,7 @@ function	OnCHASE_ST ()
 		else
 			return
 		end
-	elseif UseSkillOnly == -1 and (GetTick() >= AutoSkillTimeout) then
+	elseif UseSkillOnly == -1 then
 		dist=GetDistanceA(MyID,MyEnemy)
 		local tact_skill,tact_debuff,tact_sp,tact_skillclass=GetTact(TACT_SKILL,MyEnemy),GetTact(TACT_DEBUFF,MyEnemy),GetTact(TACT_SP,MyEnemy),GetTact(TACT_SKILLCLASS,MyEnemy)
 		skilltouse={-1,0,0}
@@ -806,38 +836,55 @@ function	OnCHASE_ST ()
 		else
 			skill_level=11
 		end
-		for i,v in ipairs(SkillList) do
-
-			skilltype=v[1]
-			if v[2]~=0 then
-				if IsInAttackSight(MyID,MyEnemy,v[2],v[3])==true then
-					if (skilltype == MOB_ATK and AutoMobMode~=0 and (MySkillUsedCount < tact_skill or tact_skill==SKILL_ALWAYS or (BerserkMode==1 and Berserk_SkillAlways==1))) then
-						local mobskill_level=skill_level
-						if AOEFixedLevel == 1 then
-							mobskill_level=v[3]
-						end
-						local mobmode=0
-						if AutoMobMode==2 then
-							mobmode=1
-						end
-						mobskillcount=GetMobCount(v[2],math.min(v[3],mobskill_level),MyEnemy,mobmode)
-						--TraceAI("mobskillcount="..mobskillcount.."tact_skillclass="..tact_skillclass.."class_mob="..CLASS_MOB.."AutoMobCount="..AutoMobCount.." "..FormatSkill(v[2],math.min(v[3],mobskill_level)))
-						if (mobskillcount >= AutoMobCount or tact_skillclass == CLASS_MOB) then
-							if (availsp >= GetSkillInfo(v[2],3,math.min(v[3],mobskill_level)))then
-								if (skilltouse[1] < 2) then
-									skilltouse=v
+		
+		-- Optimization for Mercenary Double Strafe
+		local double_strafe_id = 8207
+		local double_strafe_level = SkillList[MercType] and SkillList[MercType][double_strafe_id] or nil
+		if double_strafe_level and double_strafe_level > 0 then
+			local sp_cost = GetSkillInfo(double_strafe_id, 3, double_strafe_level)
+			local availsp_ds = GetV(V_SP, MyID)
+			if BerserkMode~=1 or Berserk_IgnoreMinSP ~=1 then
+				availsp_ds = availsp_ds - tact_sp
+			end
+			if availsp_ds >= sp_cost and IsInAttackSight(MyID, MyEnemy, double_strafe_id, double_strafe_level) then
+				skilltouse = {0, double_strafe_id, double_strafe_level}
+				TraceAI("Mercenary optimization: Directly selected Double Strafe (CHASE_ST)")
+			end
+		end
+		-- Only run normal skill selection if Double Strafe was not selected
+		if skilltouse[2] ~= double_strafe_id then
+			for i,v in ipairs(SkillList) do
+				skilltype=v[1]
+				if v[2]~=0 then
+					if IsInAttackSight(MyID,MyEnemy,v[2],v[3])==true then
+						if (skilltype == MOB_ATK and AutoMobMode~=0 and (MySkillUsedCount < tact_skill or tact_skill==SKILL_ALWAYS or (BerserkMode==1 and Berserk_SkillAlways==1))) then
+							local mobskill_level=skill_level
+							if AOEFixedLevel == 1 then
+								mobskill_level=v[3]
+							end
+							local mobmode=0
+							if AutoMobMode==2 then
+								mobmode=1
+							end
+							mobskillcount=GetMobCount(v[2],math.min(v[3],mobskill_level),MyEnemy,mobmode)
+							--TraceAI("mobskillcount="..mobskillcount.."tact_skillclass="..tact_skillclass.."class_mob="..CLASS_MOB.."AutoMobCount="..AutoMobCount.." "..FormatSkill(v[2],math.min(v[3],mobskill_level)))
+							if (mobskillcount >= AutoMobCount or tact_skillclass == CLASS_MOB) then
+								if (availsp >= GetSkillInfo(v[2],3,math.min(v[3],mobskill_level)))then
+									if (skilltouse[1] < 2) then
+										skilltouse=v
+									end
 								end
 							end
-						end
-					elseif (skilltype ==DEBUFF_ATK and ChaseDebuffUsed==0) then
+						elseif (skilltype ==DEBUFF_ATK and ChaseDebuffUsed==0) then
 							if (tact_debuff*-1 == v[2] or (tact_debuff==-1 and BasicDebuffs[v[2]]~=nil)) then
 								if (availsp-ReserveSP >= GetSkillInfo(v[2],3,math.min(v[3],skill_level))) then
 									skilltouse=v
 								end
 							end
-					elseif (skilltype==MAIN_ATK and (MySkillUsedCount < tact_skill or tact_skill==SKILL_ALWAYS or (BerserkMode==1 and Berserk_SkillAlways==1))) then
-						if (availsp-ReserveSP >= GetSkillInfo(v[2],3,math.min(v[3],skill_level))) then
-							skilltouse=v
+						elseif (skilltype==MAIN_ATK and (MySkillUsedCount < tact_skill or tact_skill==SKILL_ALWAYS or (BerserkMode==1 and Berserk_SkillAlways==1))) then
+							if (availsp-ReserveSP >= GetSkillInfo(v[2],3,math.min(v[3],skill_level))) then
+								skilltouse=v
+							end
 						end
 					end
 				end
@@ -1065,7 +1112,7 @@ function OnATTACK_ST ()
 	--	mobcount=0
 	--end
 	--Sniping routine
-	if (IsHomun(MyID)==1 and SuperPassive~=1 and BerserkMode==0 and (GetTick() >= AutoSkillTimeout) and aggro <= AutoMobCount and GetTact(TACT_SNIPE,MyEnemy)==SNIPE_OK and (ShouldStandby == 0 or StickyStandby ==0)) then
+	if (IsHomun(MyID)==1 and SuperPassive~=1 and BerserkMode==0 and aggro <= AutoMobCount and GetTact(TACT_SNIPE,MyEnemy)==SNIPE_OK and (ShouldStandby == 0 or StickyStandby ==0)) then
 		target=SelectEnemy(GetEnemyList(MyID,2)) -- This actually checks range - I know it's ugly to do it there, skill range checks need to be done at that point so we can pick a low priority target thats in range, instead of a high priority one out of range. 
 		if target ~=0 then
 			snipeskill=0
@@ -1104,56 +1151,72 @@ function OnATTACK_ST ()
 	-- Third digit (3): skill level
 	
 	if (1==1) then --non paniced attack
-		if (MySkill==0 and UseAttackSkill == 1 and GetTick() >= AutoSkillTimeout) then	
+		if (UseAttackSkill == 1) then	
 			if (tact_skill < 0) then		-- Negative value of TACT_SKILL -> 1 cast of skill
 				skill_level=tact_skill*-1	-- with level = to the absolute value of the
 				tact_skill=1			-- value of TACT_SKILL.
 			else
 				skill_level=11
 			end
-			local SkillList=GetTargetedSkills(MyID)
-			TraceAI("Begin autoskill routine")
-			local availsp = GetV(V_SP,MyID)
-			if BerserkMode~=1 or Berserk_IgnoreMinSP ~=1 then
-				availsp = availsp - tact_sp
+			
+			-- Optimization for Archer Mercenary (mertype 6) - directly select Double Strafe
+			local double_strafe_id = 8207
+			local double_strafe_level = SkillList[MercType] and SkillList[MercType][double_strafe_id] or nil
+			if double_strafe_level and double_strafe_level > 0 then
+				local sp_cost = GetSkillInfo(double_strafe_id, 3, double_strafe_level)
+				local availsp = GetV(V_SP, MyID)
+				if BerserkMode~=1 or Berserk_IgnoreMinSP ~=1 then
+					availsp = availsp - tact_sp
+				if availsp >= sp_cost and IsInAttackSight(MyID, MyEnemy, double_strafe_id, double_strafe_level) then
+					skilltouse = {0, double_strafe_id, double_strafe_level}
+					TraceAI("Mercenary optimization: Directly selected Double Strafe")
+				end
 			end
-			for i,v in ipairs(SkillList) do
-				skilltype=v[1]
-				TraceAI("skilltype ".. skilltype.." MySkillUsedCount "..MySkillUsedCount.." tact_skill ".. tact_skill.." tact_skillclass"..tact_skillclass.."v"..v[1].." "..v[2].." "..v[3])		
-				if v[2]~=0 then
-					if IsInAttackSight(MyID,MyEnemy,v[2],v[3])==true then
-						if (skilltype == MOB_ATK and AutoMobMode~=0 and (MySkillUsedCount < tact_skill or tact_skill==SKILL_ALWAYS or (BerserkMode==1 and Berserk_SkillAlways==1))) then
-							local mobskill_level=skill_level
-							if AOEFixedLevel == 1 then
-								mobskill_level=v[3]
-							end
-							local mobmode=0
-							if AutoMobMode==2 then
-								mobmode=1
-							end
-							mobskillcount=GetMobCount(v[2],math.min(v[3],mobskill_level),MyEnemy,mobmode)
-							--TraceAI("mobskillcount="..mobskillcount.."tact_skillclass="..tact_skillclass.."class_mob="..CLASS_MOB.."AutoMobCount="..AutoMobCount.." "..FormatSkill(v[2],math.min(v[3],mobskill_level)))
-							if (mobskillcount >= AutoMobCount or tact_skillclass == CLASS_MOB) then
-								if (availsp >= GetSkillInfo(v[2],3,math.min(v[3],mobskill_level)))then
-									if (skilltouse[1] < 2) then
+			else
+				local SkillList=GetTargetedSkills(MyID)
+				TraceAI("Begin autoskill routine")
+				local availsp = GetV(V_SP,MyID)
+				if BerserkMode~=1 or Berserk_IgnoreMinSP ~=1 then
+					availsp = availsp - tact_sp
+				end
+				for i,v in ipairs(SkillList) do
+					skilltype=v[1]
+					TraceAI("skilltype ".. skilltype.." MySkillUsedCount "..MySkillUsedCount.." tact_skill ".. tact_skill.." tact_skillclass"..tact_skillclass.."v"..v[1].." "..v[2].." "..v[3])		
+					if v[2]~=0 then
+						if IsInAttackSight(MyID,MyEnemy,v[2],v[3])==true then
+							if (skilltype == MOB_ATK and AutoMobMode~=0 and (MySkillUsedCount < tact_skill or tact_skill==SKILL_ALWAYS or (BerserkMode==1 and Berserk_SkillAlways==1))) then
+								local mobskill_level=skill_level
+								if AOEFixedLevel == 1 then
+									mobskill_level=v[3]
+								end
+								local mobmode=0
+								if AutoMobMode==2 then
+									mobmode=1
+								end
+								mobskillcount=GetMobCount(v[2],math.min(v[3],mobskill_level),MyEnemy,mobmode)
+								--TraceAI("mobskillcount="..mobskillcount.."tact_skillclass="..tact_skillclass.."class_mob="..CLASS_MOB.."AutoMobCount="..AutoMobCount.." "..FormatSkill(v[2],math.min(v[3],mobskill_level)))
+								if (mobskillcount >= AutoMobCount or tact_skillclass == CLASS_MOB) then
+									if (availsp >= GetSkillInfo(v[2],3,math.min(v[3],mobskill_level)))then
+										if (skilltouse[1] < 2) then
+											skilltouse=v
+										end
+									end
+								end
+							elseif (skilltype ==DEBUFF_ATK and AttackDebuffUsed < AttackDebuffLimit and (IsFriendOrSelf(GetV(V_TARGET,MyEnemy))==1 or AttackDebuffWhenAttacked~=1)) then
+								if (tact_debuff == v[2] or (tact_debuff==1 and BasicDebuffs[v[2]]~=nil)) then
+									if (availsp-ReserveSP >= GetSkillInfo(v[2],3,math.min(v[3],skill_level))) then
 										skilltouse=v
 									end
 								end
-							end
-						elseif (skilltype ==DEBUFF_ATK and AttackDebuffUsed < AttackDebuffLimit and (IsFriendOrSelf(GetV(V_TARGET,MyEnemy))==1 or AttackDebuffWhenAttacked~=1)) then
-							if (tact_debuff == v[2] or (tact_debuff==1 and BasicDebuffs[v[2]]~=nil)) then
+							elseif (skilltype==MAIN_ATK and (MySkillUsedCount < tact_skill or tact_skill==SKILL_ALWAYS or (BerserkMode==1 and Berserk_SkillAlways==1))) then
 								if (availsp-ReserveSP >= GetSkillInfo(v[2],3,math.min(v[3],skill_level))) then
 									skilltouse=v
 								end
 							end
-						elseif (skilltype==MAIN_ATK and (MySkillUsedCount < tact_skill or tact_skill==SKILL_ALWAYS or (BerserkMode==1 and Berserk_SkillAlways==1))) then
-							if (availsp-ReserveSP >= GetSkillInfo(v[2],3,math.min(v[3],skill_level))) then
-								skilltouse=v
-							end
 						end
 					end
+					TraceAI("skill selected "..skilltouse[2])
 				end
-				TraceAI("skill selected "..skilltouse[2])
 			end
 		end
 		-- Now we finalize the selection
@@ -1220,8 +1283,8 @@ function OnATTACK_ST ()
 			Move(MyID,MyAttackStanceX,MyAttackStanceY)
 		end
 	end
-	MySkill = 0
-	MySkillLevel=0
+	--MySkill = 0
+	--MySkillLevel=0
 end
 
 
@@ -1275,7 +1338,7 @@ function	OnTANKCHASE_ST ()
 		return
 	end
 	TraceAI("Tank chase: Can we skill while chasing?")
-	if UseSkillOnly == -1 and (GetTick() >= AutoSkillTimeout) then
+	if UseSkillOnly == -1 then
 		dist=GetDistanceA(MyID,MyEnemy)
 		tact_debuff,tact_skill,tact_sp,tact_skillclass=GetTact(TACT_DEBUFF,MyEnemy),GetTact(TACT_SKILL,MyEnemy),GetTact(TACT_SP,MyEnemy),GetTact(TACT_SKILLCLASS,MyEnemy)
 		skilltouse={-1,0,0}
@@ -3003,8 +3066,8 @@ function AI(myid)
 		if LastAITime + 400 < GetTick() and LastAITime > 10 then
 			TraceAI("Missed AI calls. Previous AI call was "..LastAITime-GetTick().." ms ago")
 			logappend("AAI_SKILLFAIL", "Missed AI calls. Previous AI call was "..LastAITime-GetTick().." ms ago")
-			EnemyPosX = {0,0,0,0,0,0,0,0,0,0} --When we miss AI calls, that means our predictive motion is probly screwed up
-			EnemyPosY = {0,0,0,0,0,0,0,0,0,0} --so flush this to prevent homun from getting confused by it, 
+			--EnemyPosX = {0,0,0,0,0,0,0,0,0,0} --When we miss AI calls, that means our predictive motion is probly screwed up
+			--EnemyPosY = {0,0,0,0,0,0,0,0,0,0} --so flush this to prevent homun from getting confused by it, 
 		end
 		LastAIDelay=GetTick()-LastAITime
 		LastAITime=GetTick()
