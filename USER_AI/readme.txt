@@ -1,5 +1,5 @@
 Dr. Azzy's AzzyAI v1.54
-Modified for uaRO-Pre-Renewal Beta v0.85
+Modified for uaRO-Pre-Renewal Beta v0.90
 Enhanced uaRO AzzyAI - Pre-Renewal Optimized
 !!!UARO PRE-RENEWAL SERVER ONLY - WILL ERROR ON OTHER SERVERS!!!
 
@@ -9,7 +9,7 @@ FEATURES:
 • 18-cell extended view, attach and chase range
 • Automatic bard/dancer buff collection
 • Enhanced friend management system
-• Updated config GUI with renewal features removed and search + filtering types, with DPi scaling and readable font
+• Updated config GUI with renewal features removed and search + filtering types, with DPI scaling and readable font
 
 -----------------------------------------------------------------------
 FRIEND MANAGEMENT
@@ -36,6 +36,23 @@ Extended 18-cell range matches uaRO zoom for buff searching. (This works by dete
 It then stores the information of that bard/dancer to use later, it CAN NOT see a currently active song and must see a song be originally played)
 
 -----------------------------------------------------------------------
+USE SKILL ON FOLLOW (v0.90)
+-----------------------------------------------------------------------
+🏃 Your homunculus/mercenary can now attack while following you
+• UseSkillOnFollow = 1 (enable attacking while following, great for run-and-gun farming)
+• UseSkillOnFollow = 0 (disable, classic follow behavior)
+Configure in AzzyAiConfigPreRe.exe under Auto Skill options for both Homunculus and Mercenary
+
+-----------------------------------------------------------------------
+PVP CLASS-SPECIFIC TACTICS (v0.90)
+-----------------------------------------------------------------------
+⚔️ Set different combat behaviors per enemy job class
+• Configure unique tactics for each job (Knight, Wizard, Priest, etc.)
+• Works with friend lists and ally lists for advanced PVP strategies
+• Access via AzzyAiConfigPreRe.exe → PVP Tactics (Homunculus) or Mercenary PVP Tactics
+• Perfect for WOE/BG/PVP scenarios where you need class-specific responses
+
+-----------------------------------------------------------------------
 CONFIG GUI
 -----------------------------------------------------------------------
 Run AzzyAiConfigPreRe.exe in USER_AI folder
@@ -51,7 +68,7 @@ To install:
 1. Navigate to your uaRO folder and find the "AI" folder
 2. Rename the "AI" folder to "AI-BACKUP"
 3. Extract the "AI" folder from uaRO AzzyAI Beta.rar into your uaRO folder
-4. Start uaRO and type /homai and /merai once ingame and enjoy!
+4. Start uaRO and type /hoai and /merai once ingame and enjoy!
 
 You can edit sittings by using AzzyAiConfigPreRe.exe inside "AI\USER_AI"
 

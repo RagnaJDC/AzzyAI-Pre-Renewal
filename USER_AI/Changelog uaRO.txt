@@ -1,11 +1,16 @@
-0.90 - unfinished
+0.90
 ⦁	Added UseSkillOnFollow to M_Config.lua and H_Config.lua 1 = use skill when Hom/Merc following player, 0 = disable
     UseSkillOnFollow allows the Homunculus or Mercenary to use attack skills when in Follow stance and chasing a moving owner player.
-The AI will now use skills when running past enemies, this is usefull for mobs you can 1 hit for farming, allowings you to keep running and gunning.
+    The AI will now use skills when running past enemies, this is usefull for mobs you can 1 hit for farming, allowings you to keep running and gunning.
 ⦁	Changed Bow/Archer Mercenaries which have Double Strafe to use Double Strafe range as their normal attack range (9 cells for DS compared to 11 cells normal attack)
     As normal attacks would happen before DS range was met, meaning DS could not be used as often as expected.
 ⦁	Bow/Archer Mercenary skill use optimisation, if double strafe available it now skips skill selection/cycling
-    in favour of double strafe skill use only for improved skill spam.
+    in favour of double strafe skill use only, for improved skill spam.
+⦁	Update to AzzyAiConfigPreRe.exe - Added UseSkillOnfollow to auto skill options, removed unused debuff and react options for S Homunculus. Fixed drop down menu sizing so you can actually read the options.
+⦁	PVP Tactics overhaul! You can now add Homunculus and Mercenary tactics under PVP tactics PER class/job ID'S
+    This means you can now add specific tactics in PVP/WOE/BG per class/job type so the Homun/Merc will react how you want to specific classes.
+    You can do this from the AzzyAiConfigPreRe.exe under PVP tactics and Mercenary PVP tactics. All classes are already added with a default tactic, adjust as you need.
+    PVP Tactics work with friend list and Ally list for specifics additional tactics with friends and Allys.
 
 0.85
 Backported fixes and corrections ensuring private server pre-renewal compatibility from https://github.com/SpenceKonde/AzzyAI master source code version 1.56.

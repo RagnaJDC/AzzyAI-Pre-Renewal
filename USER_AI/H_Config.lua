@@ -1,6 +1,6 @@
 -----------------------------
 -- Dr. Azzy's AzzyAI v1.54
--- Modified for uaRO-Pre-Renewal Beta v0.85 - Configuration v1.0
+-- Modified for uaRO-Pre-Renewal Beta v0.90 - Configuration v1.0
 -- Homunculus Configuration File
 -- uaRO server only - do not redistribute
 -----------------------------
@@ -76,7 +76,7 @@ MoveStickyFight          = 0
 
 --Kiting options:
 KiteMonsters             = 0
-KiteBounds               = 15 
+KiteBounds               = 18 
 KiteStep                 = 5
 KiteParanoidStep         = 2
 KiteThreshold            = 3
@@ -113,4 +113,4 @@ AttackLastFullSP         = 0
 LagReduction             = 0
 DoNotAttackMoving        = 0
 
-LastSavedDate            = "26/08/2025 18:00:48"
+LastSavedDate            = "03/09/2025 06:31:23"

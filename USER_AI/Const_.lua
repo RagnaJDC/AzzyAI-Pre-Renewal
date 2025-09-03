@@ -1,7 +1,7 @@
 -- AzzyAI Constant File
 CVersion="1.54"
-CVersionuaRO="Beta v0.85"  -- uaRO Pre-Renewal modifications version
-ConfigVersion="v1.0"      -- Configuration files version (updated when config options change)
+CVersionuaRO="Beta v0.90"  -- uaRO Pre-Renewal modifications version
+ConfigVersion="v1.1"      -- Configuration files version (updated when config options change)
 
 --[[
 function	TraceAI (string) end
@@ -19,21 +19,21 @@ function	IsMonster (id) end								-- id        ΰ ? yes -> 1 no -> 0
 
 --]]
 --GetV() first argument--
-V_OWNER				=	0			
-V_POSITION			=	1 
-V_TYPE				=	2 
-V_MOTION			=	3 
-V_ATTACKRANGE			=	4 
-V_TARGET			=	5 
-V_SKILLATTACKRANGE		=	6 
-V_HOMUNTYPE			=	7
-V_HP				=	8
-V_SP				=	9
-V_MAXHP				=	10
-V_MAXSP				=	11
-V_MERTYPE		  	=	12	
-V_POSITION_APPLY_SKILLATTACKRANGE = 13	
-V_SKILLATTACKRANGE_LEVEL = 14	
+V_OWNER				=	0			-- Returns the owner's actor ID
+V_POSITION			=	1 			-- Returns x,y coordinates of the actor
+V_TYPE				=	2 			-- Returns actor ID itself (not useful for class detection)
+V_MOTION			=	3 			-- Returns current motion/animation state
+V_ATTACKRANGE			=	4 		-- Returns attack range of the actor
+V_TARGET			=	5 			-- Returns the target actor ID
+V_SKILLATTACKRANGE		=	6 		-- Returns skill attack range
+V_HOMUNTYPE			=	7			-- Returns player class ID (23=SUPERNOVICE, 4020=CLOWN, etc.)
+V_HP				=	8			-- Returns current HP
+V_SP				=	9			-- Returns current SP
+V_MAXHP				=	10			-- Returns maximum HP
+V_MAXSP				=	11			-- Returns maximum SP
+V_MERTYPE		  	=	12			-- Returns mercenary type (usually -1 for players)
+V_POSITION_APPLY_SKILLATTACKRANGE = 13	-- Position calculation with skill range
+V_SKILLATTACKRANGE_LEVEL = 14		-- Skill attack range at specific level	
 --Homun and merc type IDs--
 LIF			= 1
 AMISTR				= 2
@@ -96,6 +96,91 @@ DISGUISE	= 105
 GMMALE		= 106
 PENGINEER   = 107
 ISIS		= 108
+
+-- PLAYER CLASSES
+-- discerns players from homun/monster/merc by actor id #
+-- Each section uses its own letter prefix to group properly in GUI alphabetical sorting
+-- while maintaining numerical order by class ID within each section
+
+-- Basic Classes (S_)
+S_0_NOVICE			= 0
+S_1_SWORDSMAN 		= 1
+S_2_MAGE	 		= 2
+S_3_ARCHER 			= 3
+S_4_ACOYLTE 		= 4
+S_5_MERCHANT 		= 5
+S_6_THIEF 			= 6
+
+-- Advanced Classes (T_)
+T_7_KNIGHT 			= 7
+T_8_PRIEST 			= 8
+T_9_WIZARD 			= 9 
+T_10_BLACKSMITH 	= 10
+T_11_HUNTER 		= 11
+T_12_ASSASSIN 		= 12
+T_14_CRUSADER 		= 14
+T_15_MONK 			= 15
+T_16_SAGE 			= 16
+T_17_ROGUE 			= 17
+T_18_ALCHEMIST 		= 18
+T_19_BARD 			= 19
+T_20_DANCER 		= 20
+
+-- Extended Classes (U_)
+U_23_SUPERNOVICE 	= 23
+U_24_GUNSLINGER 	= 24
+U_25_NINJA 			= 25
+
+-- Transcendent Classes (V_)
+V_4001_NOVICE_HIGH 		= 4001
+V_4002_SWORDSMAN_HIGH 	= 4002
+V_4003_MAGE_HIGH 		= 4003
+V_4004_ARCHER_HIGH 		= 4004
+V_4005_ACOLYTE_HIGH 	= 4005
+V_4006_MERCHANT_HIGH 	= 4006
+V_4007_THIEF_HIGH 		= 4007
+V_4008_LORD_KNIGHT 		= 4008
+V_4009_HIGH_PRIEST 		= 4009
+V_4010_HIGH_WIZARD 		= 4010
+V_4011_WHITESMITH 		= 4011
+V_4012_SNIPER 			= 4012
+V_4013_ASSASSIN_CROSS 	= 4013
+V_4015_PALADIN 			= 4015
+V_4016_CHAMPION 		= 4016
+V_4017_PROFESSOR 		= 4017
+V_4018_STALKER 			= 4018
+V_4019_CREATOR 			= 4019
+V_4020_CLOWN 			= 4020
+V_4021_GYPSY 			= 4021
+
+-- Baby Classes (W_)
+W_4023_BABY_NOVICE 		= 4023
+W_4024_BABY_SWORDSMAN 	= 4024
+W_4025_BABY_MAGE 		= 4025
+W_4026_BABY_ARCHER 		= 4026
+W_4027_BABY_ACOLYTE 	= 4027
+W_4028_BABY_MERCHANT 	= 4028
+W_4029_BABY_THIEF 		= 4029
+W_4030_BABY_KNIGHT 		= 4030
+W_4031_BABY_PRIEST 		= 4031
+W_4032_BABY_WIZARD 		= 4032
+W_4033_BABY_BLACKSMITH 	= 4033
+W_4034_BABY_HUNTER 		= 4034
+W_4035_BABY_ASSASSIN 	= 4035
+W_4037_BABY_CRUSADER 	= 4037
+W_4038_BABY_MONK 		= 4038
+W_4039_BABY_SAGE 		= 4039
+W_4040_BABY_ROGUE 		= 4040
+W_4041_BABY_ALCHEMIST 	= 4041
+W_4042_BABY_BARD 		= 4042
+W_4043_BABY_DANCER 		= 4043
+
+-- Special Classes (X_)
+X_4045_SUPER_BABY 		= 4045
+X_4046_TAEKWON_KID 		= 4046
+X_4047_TAEKWON_MASTER 	= 4047
+X_4048_SOUL_LINKER 		= 4048
+
 ------------------
 MOTION_STAND = 0 	-- Standing still
 MOTION_MOVE = 1 	-- Moving

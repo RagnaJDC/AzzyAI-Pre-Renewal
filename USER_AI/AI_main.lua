@@ -1,6 +1,6 @@
 -----------------------------
 -- Dr. Azzy's AzzyAI v1.54
--- Modified for uaRO-Pre-Renewal Beta v0.85
+-- Modified for uaRO-Pre-Renewal Beta v0.90
 -- Written by Dr. Azzy of iRO Chaos
 -- Permission granted to distribute in unmodified form.
 -- You may expand the AI freely through the M_Extra and H_Extra files
@@ -567,7 +567,7 @@ end
 function	OnFOLLOW_ST ()
 	TraceAI ("OnFOLLOW_ST - follow try count: "..FollowTryCount.." ownerpos: "..formatpos(GetV(V_POSITION,GetV(V_OWNER,MyID))).."my pos history:"..formatmypos(10))
 	-- Skill attack check: Try to use skill on enemy in range while following (do not change state)
-	if UseSkillOnFollow == 1 and UseSkillOnly == -1 and (GetTick() >= AutoSkillTimeout) then
+	if UseSkillOnFollow == 1 and UseAttackSkill == 1 and UseSkillOnly ~= 0 and (GetTick() >= AutoSkillTimeout) then
 		local SkillList = GetTargetedSkills(MyID)
 		local availsp = GetV(V_SP,MyID)
 		local enemies = GetEnemyList(MyID, 1)

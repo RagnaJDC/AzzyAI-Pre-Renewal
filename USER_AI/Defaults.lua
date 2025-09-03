@@ -1,6 +1,6 @@
 -----------------------------
 -- Dr. Azzy's AzzyAI v1.54
--- Modified for uaRO-Pre-Renewal Beta v0.85 - Configuration v1.0
+-- Modified for uaRO-Pre-Renewal Beta v0.90 - Configuration v1.1
 -- uaRO server only - do not redistribute
 -----------------------------
 --DO NOT MODIFY THIS FILE--
