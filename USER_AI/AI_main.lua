@@ -2050,8 +2050,15 @@ function	GetEnemyList (myid,aggro)
 				tact = TACT_TANK
 			end
 		end
+		
+		-- Rescue detection: Check if this is a rescue scenario and target is valid
+		local is_rescue_target = false
+		if aggro == -2 and IsRescueTarget(k) == 1 then
+			is_rescue_target = true
+		end
+		
 		--TraceAI("Target"..k.." tact:"..tact.." Motion"..v[1].." TClass"..v[2])
-		if (0 < tact and (tact < 5 or tact >9) and aggro==1 and (DoNotAttackMoving ~=1 or v[1]~=1) and (tact ~= 14 or AttackLastFullSP==0 or SPPercent(MyID)==100)) or  (tact > 9 and tact < 13 and aggro == 2 and k~=MyEnemy) or  (v[2]>0 and tact>0 and (tact~=9 or v[2]==1) and (v[1]==3 or casttact >= CAST_REACT) and aggro~=2 and (aggro > -1 or (aggro==-2 and IsRescueTarget(k)==1))) or (tact == -1 and aggro==-1 and v[2]~=1) then
+		if (0 < tact and (tact < 5 or tact >9) and aggro==1 and (DoNotAttackMoving ~=1 or v[1]~=1) and (tact ~= 14 or AttackLastFullSP==0 or SPPercent(MyID)==100)) or  (tact > 9 and tact < 13 and aggro == 2 and k~=MyEnemy) or  (v[2]>0 and tact>0 and (tact~=9 or v[2]==1) and (v[1]==3 or casttact >= CAST_REACT) and aggro~=2 and (aggro > -1 or (aggro==-2 and IsRescueTarget(k)==1))) or (aggro == -2 and is_rescue_target and tact > 0) or (tact == -1 and aggro==-1 and v[2]~=1) then
 			--TraceAI("Tactics say to attack:"..k)
 			if (IsNotKS(myid,k)==1 and v[1] > -1) then
 				--TraceAI("Is alive and not a KS")
