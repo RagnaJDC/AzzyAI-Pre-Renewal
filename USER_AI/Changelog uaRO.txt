@@ -1,3 +1,14 @@
+0.96 Dev
+⦁	Fixed idle walk system AggroHP dependency issue in PvP mode
+    Resolved issue where idle walk would be disabled when HP dropped below AggroHP threshold, even in PvP mode where continuous movement is crucial.
+    Added GetEffectiveAggroHP() helper function that overrides AggroHP to 0 for idle walk checks when PVPmode=1 is enabled.
+    This ensures homunculus maintains defensive movement patterns regardless of HP level in PvP scenarios, while preserving normal AggroHP behavior for enemy targeting.
+
+⦁	Improved PvP mode auto-configuration reliability
+    Fixed PvP mode default settings override to always apply optimal configurations regardless of user settings.
+    Removed redundant UseIdleWalk != 2 condition that could prevent proper PvP optimization when user had manually set UseIdleWalk=2 but other settings were incorrect.
+    PvP mode now guarantees consistent application of UseIdleWalk=2, FollowStayBack=0, and IdleWalkSP=0 whenever PVPmode=1 is enabled.
+
 0.95 Dev
 ⦁	Fixed rescue detection failure in GetEnemyList function for retainer cooperation
     Resolved issue where rescue system (aggro=-2) failed to detect valid targets due to perspective-dependent v[2] classification between homunculus and mercenary.

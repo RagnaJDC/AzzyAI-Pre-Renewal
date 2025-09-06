@@ -554,7 +554,7 @@ function	OnIDLE_ST ()
 	else
 		distance = GetDistanceFromOwner(MyID)
 	end
-	if (UseIdleWalk~=0 and HPPercent(MyID) > AggroHP and SPPercent(MyID) > math.max(AggroSP,IdleWalkSP)) then -- CHECK
+	if (UseIdleWalk~=0 and HPPercent(MyID) > GetEffectiveAggroHP() and SPPercent(MyID) > math.max(AggroSP,IdleWalkSP)) then -- CHECK
 		if ( distance > GetMoveBounds() or distance == -1) then		-- MYOWNER_OUTSIGNT_IN
 			MyState = FOLLOW_ST
 			TraceAI ("IDLE_ST -> FOLLOW_ST")
@@ -574,7 +574,7 @@ function	OnIDLE_ST ()
 		end
 	end
 	DoAutoBuffs(-2)
-	if UseIdleWalk ~=0 and HPPercent(MyID) > AggroHP and SPPercent(MyID) > math.max(AggroSP,IdleWalkSP) then
+	if UseIdleWalk ~=0 and HPPercent(MyID) > GetEffectiveAggroHP() and SPPercent(MyID) > math.max(AggroSP,IdleWalkSP) then
 		TraceAI("IDLE_ST -> IDLEWALK_ST, idle walk mode ="..UseIdleWalk)
 		MyState=IDLEWALK_ST
 	end
@@ -3173,11 +3173,20 @@ function AI(myid)
 	end
 	
 	-- Auto-configure UseIdleWalk for PvP mode
-	if PVPmode == 1 and UseIdleWalk ~= 2 then
+	if PVPmode == 1 then
 		UseIdleWalk = 2
 		FollowStayBack = 0
 		IdleWalkSP = 0
 		TraceAI("PvP Mode detected: Auto-enabling diamond idle walk (UseIdleWalk = 2), FollowStayBack = 0, IdleWalkSP = 0")
+	end
+	
+	-- Helper function to get effective AggroHP for idle walk (PvP mode override)
+	function GetEffectiveAggroHP()
+		if PVPmode == 1 then
+			return 0  -- PvP mode: ignore HP for idle walk decisions
+		else
+			return AggroHP  -- Normal mode: use configured AggroHP
+		end
 	end
 	if AggressiveRelogTracking==1 then
 		local OutFile
