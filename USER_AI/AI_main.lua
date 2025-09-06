@@ -513,21 +513,37 @@ function	OnIDLE_ST ()
 		end
 		object=SelectEnemy(GetEnemyList(MyID,aggro))
 		if object~=0 then
-			MyState = CHASE_ST
-			MyEnemy = object
-			TraceAI ("IDLE_ST -> CHASE_ST : ATTACKED_IN")
-			if (FastChangeCount < FastChangeLimit and FastChange_I2C ==1) then
-				return OnCHASE_ST()
+			-- PvP Mode + DoNotChase: Switch to IDLEWALK for mobile attack
+			if PVPmode == 1 and DoNotChase == 1 then
+				TraceAI("IDLE_ST -> IDLEWALK_ST: PvP mode enemy detected, switching to mobile attack")
+				MyState = IDLEWALK_ST
+				return
+			else
+				-- Normal behavior: switch to chase
+				MyState = CHASE_ST
+				MyEnemy = object
+				TraceAI ("IDLE_ST -> CHASE_ST : ATTACKED_IN")
+				if (FastChangeCount < FastChangeLimit and FastChange_I2C ==1) then
+					return OnCHASE_ST()
+				end
+				return	
 			end
-			return	
 		end
 		if (aggro==1 and TankMonsterCount < TankMonsterLimit) then
 			object = SelectEnemy(GetEnemyList(MyID,-1))
 			if (object ~= 0) then
-				MyState = TANKCHASE_ST
-				MyEnemy = object
-				TraceAI ("IDLE_ST -> TANKCHASE_ST")
-				return
+				-- PvP Mode + DoNotChase: Switch to IDLEWALK for mobile attack
+				if PVPmode == 1 and DoNotChase == 1 then
+					TraceAI("IDLE_ST -> IDLEWALK_ST: PvP mode tank target detected, switching to mobile attack")
+					MyState = IDLEWALK_ST
+					return
+				else
+					-- Normal behavior: switch to tank chase
+					MyState = TANKCHASE_ST
+					MyEnemy = object
+					TraceAI ("IDLE_ST -> TANKCHASE_ST")
+					return
+				end
 			end
 		end
 	end
@@ -2673,21 +2689,67 @@ function	OnIDLEWALK_ST ()
 		end
 		object=SelectEnemy(GetEnemyList(MyID,aggro))
 		if object~=0 then
-			MyState = CHASE_ST
-			MyEnemy = object
-			TraceAI ("IDLEWALK_ST -> CHASE_ST : ATTACKED_IN")
-			if (FastChangeCount < FastChangeLimit and FastChange_I2C ==1) then
-				return OnCHASE_ST()
+			-- PvP Mode + DoNotChase: Stay in IDLEWALK and attack from distance
+			if PVPmode == 1 and DoNotChase == 1 then
+				MyEnemy = object
+				local tact_skill = GetTact(TACT_SKILL, MyEnemy)
+				local skill_level = tact_skill < 0 and -tact_skill or 11
+				local SkillList = GetTargetedSkills(MyID)
+				local availsp = GetV(V_SP,MyID)
+				for i, v in ipairs(SkillList) do
+					local skilltype = v[1]
+					if v[2] ~= 0 and skilltype == MAIN_ATK and IsInAttackSight(MyID, MyEnemy, v[2], v[3]) == true then
+						if (availsp - ReserveSP >= GetSkillInfo(v[2],3,math.min(v[3],skill_level))) then
+							TraceAI("Using MAIN_ATK skill while following on focused enemy:"..MyEnemy.." skill:"..v[2])
+							local slvl = v[3]
+							if skill_level ~= 11 then
+								slvl = skill_level
+							end
+							DoSkill(v[2], slvl, MyEnemy)
+						end
+					end
+				end
+			else
+				-- Normal behavior: switch to chase
+				MyState = CHASE_ST
+				MyEnemy = object
+				TraceAI ("IDLEWALK_ST -> CHASE_ST : ATTACKED_IN")
+				if (FastChangeCount < FastChangeLimit and FastChange_I2C ==1) then
+					return OnCHASE_ST()
+				end
+				return	
 			end
-			return	
 		end
 		if (aggro==1 and TankMonsterCount < TankMonsterLimit) then
 			object = SelectEnemy(GetEnemyList(MyID,-1))
 			if (object ~= 0) then
-				MyState = TANKCHASE_ST
-				MyEnemy = object
-				TraceAI ("IDLEWALK_ST -> TANKCHASE_ST")
-				return
+				-- PvP Mode + DoNotChase: Stay in IDLEWALK and attack from distance
+				if PVPmode == 1 and DoNotChase == 1 then
+					MyEnemy = object
+					local tact_skill = GetTact(TACT_SKILL, MyEnemy)
+					local skill_level = tact_skill < 0 and -tact_skill or 11
+					local SkillList = GetTargetedSkills(MyID)
+					local availsp = GetV(V_SP,MyID)
+					for i, v in ipairs(SkillList) do
+						local skilltype = v[1]
+						if v[2] ~= 0 and skilltype == MAIN_ATK and IsInAttackSight(MyID, MyEnemy, v[2], v[3]) == true then
+							if (availsp - ReserveSP >= GetSkillInfo(v[2],3,math.min(v[3],skill_level))) then
+								TraceAI("Using MAIN_ATK skill while following on focused enemy:"..MyEnemy.." skill:"..v[2])
+								local slvl = v[3]
+								if skill_level ~= 11 then
+									slvl = skill_level
+								end
+								DoSkill(v[2], slvl, MyEnemy)
+							end
+						end
+					end
+				else
+					-- Normal behavior: switch to tank chase
+					MyState = TANKCHASE_ST
+					MyEnemy = object
+					TraceAI ("IDLEWALK_ST -> TANKCHASE_ST")
+					return
+				end
 			end
 		end
 	end
@@ -2722,15 +2784,23 @@ function	OnIDLEWALK_ST ()
 		end
 		MyDestX,MyDestY=GetIdleWalkDest(MyID)
 		if MyDestX==ox and MyDestY==oy then
-			MyDestX,MyDestY=Closest(MyID,MyDestX,MyDestY,1,1)
+			-- PvP Mode: Skip safety adjustment to allow exact owner positioning
+			if PVPmode ~= 1 then
+				MyDestX,MyDestY=Closest(MyID,MyDestX,MyDestY,1,1)
+			end
 		end
 		IdleWalkTries=0 
 		TraceAI("IDLEWALK_ST: New destination: "..MyDestX..","..MyDestY)
 		return Move(MyID,MyDestX,MyDestY)
 	elseif motion == MOTION_STAND then
 		if IdleWalkTries == 4 then
-			MyDestX,MyDestY=Closest(MyID,MyDestX,MyDestY,1,1)
-			TraceAI("IDLEWALK_ST: Having a bit of trouble - adjust dest to: "..MyDestX..","..MyDestY)
+			-- PvP Mode: Skip safety adjustment when having trouble - direct positioning
+			if PVPmode ~= 1 then
+				MyDestX,MyDestY=Closest(MyID,MyDestX,MyDestY,1,1)
+				TraceAI("IDLEWALK_ST: Having a bit of trouble - adjust dest to: "..MyDestX..","..MyDestY)
+			else
+				TraceAI("IDLEWALK_ST: PvP Mode - maintaining direct positioning: "..MyDestX..","..MyDestY)
+			end
 		end
 		TraceAI("IDLEWALK_ST: No move after "..IdleWalkTries.." trying again:"..MyDestX..","..MyDestY)
 		IdleWalkTries=IdleWalkTries+1
@@ -2763,21 +2833,33 @@ function GetIdleWalkDest(MyID)
 		local desty=math.ceil(math.cos(angle)*IdleWalkDistance)+oy
 		TraceAI("Orbit Dest: "..destx..","..desty.." owner: "..ox..","..oy.." mypos: "..mx..","..my)
 		return destx,desty	
-	elseif UseIdleWalk==2 then -- Cross
-		local temp=math.deg(math.atan2(xoff,yoff))+45
-		if temp < 0 then
-			temp=temp+360
+	elseif UseIdleWalk==2 then -- AIthort Diamond
+		-- Check if we've reached the current target to advance counter
+		if (GetDistanceAPR(MyID,MyDestX,MyDestY) <= 1) then
+			IdleWalkCounter = IdleWalkCounter + 1
+			if IdleWalkCounter >= 4 then 
+				IdleWalkCounter = 0 
+			end
 		end
-		step = math.floor(temp/90)
-		TraceAI("Cross step "..step)
-		if step == 0 then -- north goes to south
-			return ox,oy-IdleWalkDistance
-		elseif step == 1 then -- east goes to north
-			return ox,oy+IdleWalkDistance
-		elseif step == 2 then -- south goes to west
-			return ox-IdleWalkDistance,oy
-		else  -- must be west!
-			return ox+IdleWalkDistance,oy
+		
+		local distance = math.max(IdleWalkDistance, 1) -- Failsafe: ensure distance is at least 1
+		-- PvP Mode: Use tighter positioning for better defense
+		if PVPmode == 1 and distance > 1 then
+			distance = 1  -- Force 1-cell diamond for maximum defense coverage
+			TraceAI("Diamond step "..IdleWalkCounter.." (PvP mode - tight formation)")
+		else
+			TraceAI("Diamond step "..IdleWalkCounter)
+		end
+		
+		-- AIthort Diamond Pattern: Sequential movement in diamond shape
+		if IdleWalkCounter == 0 then      -- North
+			return ox, oy + distance
+		elseif IdleWalkCounter == 1 then  -- East
+			return ox + distance, oy
+		elseif IdleWalkCounter == 2 then  -- South
+			return ox, oy - distance
+		else                             -- West (IdleWalkCounter == 3)
+			return ox - distance, oy
 		end
 	elseif UseIdleWalk==3 then -- Rectangle
 		local temp=math.deg(math.atan2(xoff,yoff))+22.5
@@ -3088,6 +3170,14 @@ function AI(myid)
 	end
 	if DoneInit== 0 then
 		doInit(myid)
+	end
+	
+	-- Auto-configure UseIdleWalk for PvP mode
+	if PVPmode == 1 and UseIdleWalk ~= 2 then
+		UseIdleWalk = 2
+		FollowStayBack = 0
+		IdleWalkSP = 0
+		TraceAI("PvP Mode detected: Auto-enabling diamond idle walk (UseIdleWalk = 2), FollowStayBack = 0, IdleWalkSP = 0")
 	end
 	if AggressiveRelogTracking==1 then
 		local OutFile

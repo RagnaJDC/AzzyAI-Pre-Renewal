@@ -1,3 +1,23 @@
+0.95 Dev
+⦁	Fixed rescue detection failure in GetEnemyList function for retainer cooperation
+    Resolved issue where rescue system (aggro=-2) failed to detect valid targets due to perspective-dependent v[2] classification between homunculus and mercenary.
+    Added rescue target detection bypass that maintains all existing rescue tactic validation via IsRescueTarget().
+    Enables proper homunculus/mercenary rescue cooperation when one retainer is attacked by monsters.
+
+⦁	Enhanced PvP Mode with Automatic Player Protection and Mobile Turret System
+    PVPmode=1 now automatically enables player protection idle walk (UseIdleWalk=2) where homunculus moves in diamond pattern 
+    around owner position to provide defensive coverage and enhanced battlefield positioning. No manual idle walk configuration required.
+    
+    Combined with DoNotChase=1, creates advanced mobile turret system for superior PvP positioning:
+    - Automatically enables diamond movement pattern (imported from AIthort) for optimal protection coverage
+    - Continuously moves around owner while maintaining attack capability on enemies within skill range
+    - Ignores out-of-range enemies to prevent movement interruption and maintain positioning
+    - Provides mobile turret behavior ideal for PvP scenarios with constant movement and opportunistic attacks
+    - Works consistently in both high SP (IDLEWALK_ST) and low SP (IDLE_ST) states
+    
+    Replaces static crosswalk pattern with dynamic diamond movement for improved battlefield mobility and simplified PvP setup.
+    Simply set PVPmode=1 for automatic player protection, or PVPmode=1 + DoNotChase=1 for full mobile turret functionality.
+
 0.90
 ⦁	Added UseSkillOnFollow to M_Config.lua and H_Config.lua 1 = use skill when Hom/Merc following player, 0 = disable
     UseSkillOnFollow allows the Homunculus or Mercenary to use attack skills when in Follow stance and chasing a moving owner player.

@@ -534,6 +534,7 @@ SkillObjectCMDTimeout   = 0
 --Advanced movement stuff
 --OrbitWalkStep			= 0
 IdleWalkTries			= 0
+IdleWalkCounter			= 0
 RouteWalkStep			= nil
 RouteWalkDirection		= 1
 KiteDestX			= 0
