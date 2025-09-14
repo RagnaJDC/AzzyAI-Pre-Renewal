@@ -9,8 +9,9 @@
     Removed redundant UseIdleWalk != 2 condition that could prevent proper PvP optimization when user had manually set UseIdleWalk=2 but other settings were incorrect.
     PvP mode now guarantees consistent application of UseIdleWalk=2, FollowStayBack=0, and IdleWalkSP=0 whenever PVPmode=1 is enabled.
 
-⦁ Updated H_PVP_Tact.lua & M_PVP_Tact.lua to accept all 13 tactics per entry, with defaults now set for all classes.
-⦁ Updated AzzyAiConfigPreRe.exe to support the new PvP tactics files with 13 tactics, including correct save/load functionality and GUI improvements to allow editing all tactic settings.
+These fixes should resolve DoNotChase issues within pvp, as chase status required tactics to work.
+⦁    Updated H_PVP_Tact.lua & M_PVP_Tact.lua to accept all 13 tactics per entry, with defaults now set for all classes.
+⦁    Updated AzzyAiConfigPreRe.exe to support the new PvP tactics files with 13 tactics, including correct save/load functionality and GUI improvements to allow editing all tactic settings.
 
 0.95 Dev
 ⦁	Fixed rescue detection failure in GetEnemyList function for retainer cooperation
