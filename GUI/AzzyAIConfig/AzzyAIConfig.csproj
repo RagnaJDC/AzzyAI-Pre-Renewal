@@ -1,0 +1,64 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <PlatformTarget>x86</PlatformTarget>
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+    <AssemblyName>AzzyAIConfig</AssemblyName>
+    <RootNamespace>AzzyAIConfig</RootNamespace>
+    <ApplicationIcon>azzyai.ico</ApplicationIcon>
+    <AssemblyVersion>1.5.1.0</AssemblyVersion>
+    <FileVersion>1.5.1.0</FileVersion>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+    <AssemblyTitle>AzzyAI Configuration Tool (Pre-Renewal)</AssemblyTitle>
+    <AssemblyDescription>Programmed by Dr. Azzy based on work by Machiavellian, both of iRO Chaos. Updated and changed by KivonSlayer or uaRO Pre-Renewal version without S-type homunculus support.</AssemblyDescription>
+    <AssemblyCompany>Dr. Azzy</AssemblyCompany>
+    <AssemblyProduct>AzzyAI Configuration Utility (Pre-Renewal)</AssemblyProduct>
+    <AssemblyCopyright>Copyright © AzzyAI 2010</AssemblyCopyright>
+    <AssemblyInformationalVersion>1.5.1 Pre-Renewal (.NET 9.0)</AssemblyInformationalVersion>
+    <AssemblyConfiguration>Release</AssemblyConfiguration>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <TrimMode>partial</TrimMode>
+    <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
+    <NoWarn>$(NoWarn);WFO1000</NoWarn>
+    <!-- UI Compatibility Settings -->
+    <ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
+    <ApplicationUseCompatibleTextRendering>false</ApplicationUseCompatibleTextRendering>
+    <ApplicationVisualStyles>true</ApplicationVisualStyles>
+  </PropertyGroup>
+
+  <!-- Optimized single file publishing configuration -->
+  <PropertyGroup>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <PublishTrimmed>false</PublishTrimmed>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <!-- Size and performance optimizations -->
+    <DebuggerSupport>false</DebuggerSupport>
+    <EnableUnsafeUTF7Encoding>false</EnableUnsafeUTF7Encoding>
+    <PublishReadyToRun>false</PublishReadyToRun>
+    <StripSymbols>true</StripSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Only include necessary files for the executable to work -->
+    <Content Include="azzyai.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!-- Post-publish: Copy single file executable to USER_AI directory -->
+  <Target Name="CopyToUserAI" AfterTargets="Publish" Condition="'$(PublishSingleFile)' == 'true'">
+    <PropertyGroup>
+      <UserAIPath>$(MSBuildProjectDirectory)\..\..\USER_AI</UserAIPath>
+      <SourceExe>$(PublishDir)$(AssemblyName).exe</SourceExe>
+      <DestExe>$(UserAIPath)\$(AssemblyName).exe</DestExe>
+    </PropertyGroup>
+    <Copy SourceFiles="$(SourceExe)" DestinationFiles="$(DestExe)" ContinueOnError="true" />
+    <Message Text="Copied $(AssemblyName).exe to USER_AI directory" Importance="high" />
+  </Target>
+
+</Project>
