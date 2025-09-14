@@ -1,5 +1,7 @@
 -- AzzyAI Constant File
-CVersion="1.552"
+CVersion="1.54"
+CVersionuaRO="Beta v0.85"  -- uaRO Pre-Renewal modifications version
+ConfigVersion="v1.0"      -- Configuration files version (updated when config options change)
 
 --[[
 function	TraceAI (string) end
@@ -13,7 +15,7 @@ function	GetMsg (id) end
 function	GetResMsg (id) end
 function	SkillObject (id,level,skill,target) end
 function	SkillGround (id,level,skill,x,y) end
-function	IsMonster (id) end								-- id는 몬스터인가? yes -> 1 no -> 0
+function	IsMonster (id) end								-- id        寬 ? yes -> 1 no -> 0
 
 --]]
 --GetV() first argument--
@@ -107,7 +109,8 @@ MOTION_CASTING = 8 	-- Casting a skill
 MOTION_ATTACK2 = 9 	-- Attacking (other motion)
 MOTION_TOSS = 12	 -- Toss something (spear boomerang / aid potion)
 MOTION_COUNTER = 13 	-- Counter-attack
-MOTION_PERFORM = 17 	-- Performance
+MOTION_DANCE = 16 	-- dancer songs
+MOTION_PERFORM = 17 	-- bard Performance
 MOTION_JUMP_UP = 19 	-- TaeKwon Kid Leap -- rising
 MOTION_JUMP_FALL= 20 	-- TaeKwon Kid Leap -- falling
 MOTION_SOULLINK = 23 	-- Soul linker using a link skill
@@ -284,7 +287,6 @@ DEBUFF_FREEZE_C = -8212
 DEBUFF_DECAGI_C = -8234
 DEBUFF_LEXDIV_C = -8236
 DEBUFF_BREEZE_C=-8026
-DEBUFF_ASH_C=-8043
 DEBUFF_ANY_A = 1
 DEBUFF_CRASH_A = 8225
 DEBUFF_PROVOKE_A = 8232
@@ -293,7 +295,6 @@ DEBUFF_FREEZE_A = 8212
 DEBUFF_DECAGI_A = 8234
 DEBUFF_LEXDIV_A = 8236
 DEBUFF_BREEZE_A=8026
-DEBUFF_ASH_A=8043
 
 ---------------------------
 --Tactics (SKILL CLASS)
@@ -406,7 +407,7 @@ MySkillLevel			= 0
 MyPSkill				= 0
 MyPSkillLevel			= 0
 MyPMode				= 0
-MySpheres			= 0
+--MySpheres			= 0  -- S-Type Homunculus variable - Commented out for Pre-Renewal Basic Homunculus Only
 MyASAPBuffs			= {0,0,0,0,0,0,0,0,0,0}
 MyPosX				= {0,0,0,0,0,0,0,0,0,0}	-- list of positions
 MyPosY				= {0,0,0,0,0,0,0,0,0,0}	-- to better sense motion
@@ -445,7 +446,6 @@ AttackTimeout			= 0 --for AttackTimeLimit
 AutoSkillCastTimeout	= 0 --Cast time timeout
 TankHitTimeout			= 0
 SkillObjectCMDTimeout   = 0
-AshTimeout 				= {0,0,0}
 --Advanced movement stuff
 --OrbitWalkStep			= 0
 IdleWalkTries			= 0
@@ -462,6 +462,7 @@ ChaseDebuffUsed			= 0
 Unreachable			= {}
 FollowTryCount			= 0
 FastChangeCount			= 0
+AllTargetUnreachable		= 0
 MyAttackStanceX,MyAttackStanceY = 0,0
 AttackDebuffUsed		= 0
 NeedToDoAutoFriend		= 0
@@ -478,7 +479,7 @@ FriendCircleIter		= 0
 FriendCircleTimeout		= 0
 DoneInit				= 0
 AtkPosbugFixTimeout		= 0
-EleanorMode				= 0
+--EleanorMode				= 0  -- S-Type Homunculus variable - Commented out for Pre-Renewal Basic Homunculus Only
 LastAITime_ART			= 0
 StickyX,StickyY			= 0,0
 MyLastSP				= 0
@@ -494,16 +495,23 @@ LastAIDelay				= 0
 MyMaxSP					= 0
 MyBuffSPCosts			= {}
 MyBuffSPCost			= 0		
-ComboSCTimeout=0
-ComboSVTimeout=0
+SingBuffed				= 0
+SingTimer				= 0
+SingTarget				= 0
+SingSeeking				= 0		-- 0 = not seeking, 1 = actively moving to singer
+SingLastCheck			= 0		-- Timer for periodic sing buff checking
+SavedBards				= {}	-- Table to track bards: {actorID = {lastSeen, lastBuffed, songEndTime}}
+CurrentBuffProvider		= 0		-- ID of the bard who provided our current buff
 
-modtwROMoveDid =0
-modtwROAttackDid=0
-modtwROSkillGroundLV,modtwROSkillGroundID,modtwROSkillGroundX,modtwROSkillGroundY,modtwROSkillObjectLV,modtwROSkillObjectID,modtwROSkillObjectTarg,modtwROAttackTarget=0,0,0,0,0,0,0,0
-modtwROAttackTarget,modtwROMoveX,modtwROMoveY=0,0,0
-LagReductionCD =0
+-- Separate Dancer Buff System Variables
+DanceBuffed				= 0
+DanceTimer				= 0
+DanceTarget				= 0
+DanceSeeking			= 0		-- 0 = not seeking, 1 = actively moving to dancer
+DanceLastCheck			= 0		-- Timer for periodic dance buff checking
+SavedDancers			= {}	-- Table to track dancers: {actorID = {lastSeen, lastBuffed, songEndTime}}
+CurrentDanceProvider	= 0		-- ID of the dancer who provided our current buff
 
-AllTargetUnreachable=0
 
 -- These need to be globals
 Actors				= {}

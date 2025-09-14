@@ -1,4 +1,8 @@
----------------------------
+-----------------------------
+-- Dr. Azzy's AzzyAI v1.54
+-- Modified for uaRO-Pre-Renewal Beta v0.85 - Configuration v1.0
+-- uaRO server only - do not redistribute
+-----------------------------
 --DO NOT MODIFY THIS FILE--
 ---------------------------
 --TO CHANGE AI BEHAVIOR  --
@@ -52,45 +56,11 @@ UseKyrieOwner			= 0
 AttackSkillReserveSP  = 0 
 AutoMobMode			=1 
 AutoMobCount		=5
-AutoComboMode		=1
-AutoComboSkill		=0
-AutoComboSpheres	=10
 UseAutoPushback		=0
 AutoPushbackThreshold		=2
-UseHomunSSkillChase 		= 1
-UseHomunSSkillAttack 		= 1 
 AutoSkillDelay          	= 400 
 AoEMaximizeTargets					=  0
 CastTimeRatio				= .5
-UseEiraXenoSlasher			=0 
-EiraXenoSlasherLevel		=4 
-UseEiraEraseCutter			=1
-EiraEraseCutterLevel		=4 
-UseEiraSilentBreeze		= 0
-EiraSilentBreezeLevel	=5 
-UseBayeriStahlHorn			=1
-BayeriStahlHornLevel		=5
-UseBayeriHailegeStar		=1
-BayeriHailegeStarLevel		=5
-UseBayeriSteinWand			=0
-BayeriSteinWandLevel		=5
-UseSteinWandSelfMob			=2
-UseSteinWandOwnerMob		=2
-UseSteinWandTele			=0 
-StienWandTelePause 			=3000
-UseSeraParalyze				=1
-SeraParalyzeLevel			=5
-UseSeraPoisonMist			=0 
-SeraPoisonMistLevel			=5
-UseSeraCallLegion			=1 
-SeraCallLegionLevel			=5
-UseEleanorSonicClaw			=1
-EleanorSonicClawLevel		=5
-EleanorSilverveinLevel		=5
-EleanorMidnightLevel		=5
-UseDieterLavaSlide			=1 
-DieterLavaSlideLevel		=10
-
 
 --Autobuff options
 
@@ -107,15 +77,6 @@ LifEscapeLevel  =5
 FilirFlitLevel  =1
 FilirAccelLevel =1
 AmiBulwarkLevel =5
-UseSeraPainkiller = 0
-
-UseBayeriAngriffModus	=0
-UseBayeriGoldenPherze	=0
-UseDieterMagmaFlow	=0
-UseDieterGraniticArmor	=0
-UseDieterPyroclastic	=0
-DieterPyroclasticLevel	=10
-UseEiraOveredBoost		=0
 
 --AutoHeal Options:
 HealSelfHP		= 50 
@@ -151,48 +112,35 @@ StickyStandby            = 1
 
 --Advanced Timing settings 
 SpawnDelay               = 1000
-AutoSkillDelay		= 400
 ChaseGiveUp              = 6
-AttackGiveUp		=10 
+AttackGiveUp		=7 
 AtkPosbugTimeoutLimit  = 3 
 FollowTryPanic		=3 
 SphereTrackFactor	=3 
 
---Berzerk Settings:
+--Berserk Settings:
 
-UseBerzerkMobbed         = 0 
-UseBerzerkSkill          = 0 
-UseBerzerkAttack         = 0 
-Berzerk_SkillAlways      = 0 
-Berzerk_Dance            = 0
-Berzerk_IgnoreMinSP      = 0 
-
+UseBerserkMobbed         = 0 
+UseBerserkSkill          = 0 
+UseBerserkAttack         = 0 
+Berserk_SkillAlways      = 0 
+Berserk_Dance            = 0
+Berserk_IgnoreMinSP      = 0 
 
 --Misc settings:
 StandbyFriending         = 1  
 MirAIFriending           = 1  
+PickUpBraggi             = 1    -- 0 = disable, 1 = enable seeking bard/dancer buffs
+PickUpDancer             = 1    -- 0 = disable, 1 = enable seeking dancer buffs (separate system)
 UseAvoid		 = 0  
 TankMonsterLimit	= 4
 AttackTimeLimit		= 0
 AggressiveRelogTracking = 0
 AggressiveRelogPath = "./AI/USER_AI/"
-ConfigPath = "./AI/USER_AI/"
 AttackLastFullSP = 0
 
-
-
-
-
-
-
-
-
-
-DoNotChase 		=0
 KSMercHomun		=0
 AssumeHomun		=1
-UseAutoPushback		=0
-AutoPushbackThreshold	=2
 NewAutoFriend		=1
 ProvokeOwnerTries	=5
 ProvokeOwnerDelay	=400
@@ -210,16 +158,9 @@ FastChangeLimit		=1
 
 AttackDebuffLimit	=1
 
-
-MagicNumber		=42000
-MagicNumber2		=100000
-
-
-
--- Homun S stuff
-
-
-
+MagicNumber			=110000000
+MagicNumber2		=2000000
+MagicNumber3		=100000000
 
 FriendAttack={}			--Set these to 1 to have homun attack 
 				--the target of a friend/owner when the friend is:
@@ -251,5 +192,3 @@ LogEnable={}
 LogEnable["AAI_ERROR"]=1
 LogEnable["AAI_SKILLFAIL"]=0
 LogEnable["AAI_CLOSEST"]=0
-
-LogEnable["AAI_Lag"]=0

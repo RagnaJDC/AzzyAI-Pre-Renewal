@@ -1,0 +1,19 @@
+0.85
+Backported fixes and corrections ensuring private server pre-renewal compatibility from https://github.com/SpenceKonde/AzzyAI master source code version 1.56.
+Version 1.56 is not compatible with private servers on pre-renewal in Dr Azzys current AzzyAI release due to kRO homunculus AI coding changes so fixes were cherry-picked.
+uaRO AzzyAI runs on source code version 1.541 with these version 1.56 fixes ported down.
+⦁	Fix issue with pauses bugging up predictive move.
+⦁	Corrected issue that could cause rescuer to get distracted .
+⦁	Corrected issue where state of skill use count could be lost.
+⦁	Corrected issue with Tanking tactic.
+⦁	Correct issue with standpoint selection while attacking on low aspd homuns.
+⦁	Extend AAI_Closest logging to cover the closely related AdjustStandPoint() function.
+⦁	Correct boneheaded mistake in AdjustStandPoint() which resulted in pathing hangs.
+⦁	Improve the wrapper for move to hopefully improve chase performance for things far away.
+⦁	When all targets are unreachable, return to owner in the hopes that they'll be reachable from there.
+⦁	Corrected issue with obstacle handling when chasing monsters near edges of screen.
+
+0.80
+⦁   Updated M_Config.lua, H_Config.lua and Const_.lua to fix a typo which caused an LUA error in game when using mercenaries. (Thank you Andrés シ) 
+
+--Changelog started at version 0.80 because im bad of recording what happening and did not have a plan to begin with--

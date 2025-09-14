@@ -1,10 +1,14 @@
 -------------------------------
--- This file is part of AzzyAI 1.55
--- If you want to use these functions in your own AI
--- it is reccomended that you use the seperately available
--- version, which does not utilize AAI-specific systems. 
--- Written by Dr. Azzy of iRO Chaos
-AUVersion="1.56"
+-- Dr. Azzy's AzzyAI v1.54  
+-- Modified for uaRO-Pre-Renewal Beta v0.85
+-- This file is part of AzzyAI
+-- Original by Dr. Azzy of iRO Chaos
+--
+-- Modified for uaRO pre-renewal server compatibility by removing S-Type homunculus features.
+-- This modified version is intended for uaRO server only and should not be distributed outside of uaRO
+-- to keep within Dr. Azzy's original wishes and due to him not granting permission to distribute modified versions.
+-------------------------------
+AUVersion="1.54"
 -------------------------------
 
 
@@ -207,7 +211,7 @@ function	GetPVPTact(t,m)
 end
 
 function	GetClass(m)
-	if (m < MagicNumber) then
+	if (m >= MagicNumber) then
 		return 10
 	elseif (IsActive[m]==0 and AutoDetectPlant==1) then
 		return 11
@@ -265,7 +269,7 @@ function GetTargetClass(id)
 		return 1
 	elseif id == 0 then
 		return 0
-	elseif (id > MagicNumber2) then
+	elseif (id >= MagicNumber2 and id <= MagicNumber3) then
 		if IsFriendOrSelf(id)==1 then
 			return 2
 		else
@@ -319,7 +323,7 @@ function IsFriendOrSelf(id)
 end
 
 function IsPlayer(id)
-	if (id>MagicNumber2) then
+	if (id>=MagicNumber2 and id <= MagicNumber3) then
 		return 1
 	else
 		return 0
@@ -327,11 +331,11 @@ function IsPlayer(id)
 end
 
 function UpdateFriends() 
-	FriendsFile = io.open(ConfigPath.."A_Friends.lua", "w")
+	FriendsFile = io.open("AI/USER_AI/A_Friends.lua", "w")
 	if FriendsFile~=nil then
 		FriendsFile:write (STRING_A_FRIENDS_HEAD)
 		for k,v in pairs(MyFriends) do
-			if (v==FRIEND or (v==PKFRIEND and PainkillerFriendsSave == 1)) then
+			if (v==FRIEND or v==13 or (v==PKFRIEND and PainkillerFriendsSave == 1)) then
 				FriendsFile:write ("MyFriends["..k.."]="..v.." -- \n")
 			end
 		end
@@ -911,10 +915,10 @@ function Move(myid,x,y)
 	local dis = GetDistance(ox,oy,x,y)
 	local dis2owner=GetDistanceAPR(GetV(V_OWNER,myid),x,y)
 	local newx,newy=x,y
-	if dis2owner > 14 then 
+	if dis2owner > 17 then 
 		logappend("AAI_ERROR","Attempt to move to location "..x..","..y.." which is "..dis2owner.." cells from owner, call disregarded")
 		return 
-	elseif dis > 15  then
+	elseif dis > 18  then
 		--factor = 14/dis
 		factor=0.5+((math.random(3)-2)*0.1)
 		if dis > 25 then 
@@ -950,11 +954,11 @@ function Move(myid,x,y)
 			newx=ox+dx
 			newy=oy+dy
 			MyDestX,MyDestY=newx,newy
-			TraceAI("MOVE: Attempt to move more than 15 cells, destination + MyDest adjusted: "..x..","..y.." "..dis.." "..factor.."new: "..newx..","..newy)
+			TraceAI("MOVE: Attempt to move more than 18 cells, destination + MyDest adjusted: "..x..","..y.." "..dis.." "..factor.."new: "..newx..","..newy)
 		else
 			newx=ox+dx
 			newy=oy+dy
-			TraceAI("MOVE: Attempt to move more than 15 cells, destination adjusted: "..x..","..y.." "..dis.." "..factor.."new: "..newx..","..newy)
+			TraceAI("MOVE: Attempt to move more than 18 cells, destination adjusted: "..x..","..y.." "..dis.." "..factor.."new: "..newx..","..newy)
 		end
 	end
 	if (LagReduction and LagReduction ~=0) then
@@ -965,19 +969,12 @@ function Move(myid,x,y)
 	end
 end
 
-
 OldSkillObject=SkillObject
 function SkillObject(myid,lvl,skill,target)
 	if skill==8041 or skill==8043 or skill==8020 or skill==8025 then
 		logappend("AAI_ERROR","Attempted to use skill "..SkillInfo[skill][1].." improperly. Check for corrupt H_SkillInfo or badly behaved addon")
 	else
-		if (LagReduction and LagReduction ~=0) then
-			modtwROSkillObjectID=skill
-			modtwROSkillObjectLV=lvl
-			modtwROSkillObjectTarg=target
-		else
-			return OldSkillObject(myid,lvl,skill,target)
-		end
+		return OldSkillObject(myid,lvl,skill,target)
 	end
 end
 
@@ -986,23 +983,7 @@ function Attack(myid,target)
 	if SuperPassive==1 then
 		TraceAI("Notice: Attack() called while in SuperPassive. MyEnemy "..MyEnemy.." MyState "..MyState)
 	end
-	if (LagReduction and LagReduction ~=0) then
-		modtwROAttackTarget=target
-	else
-		return OldAttack(myid,target)
-	end
-end
-
-OldSkillGround=SkillGround
-function SkillGround(myid,lvl,skill,x,y)
-	if (LagReduction and LagReduction ~=0) then
-		modtwROSkillGroundX=x
-		modtwROSkillGroundY=y
-		modtwROSkillGroundID=skill
-		modtwROSkillGroundLV=lvl
-	else
-		return OldSkillGround(myid,lvl,skill,x,y)
-	end
+	OldAttack(myid,target)
 end
 
 function	GetDistance (x1,y1,x2,y2)
@@ -1773,44 +1754,6 @@ function GetSAtkSkill(myid)
 	local level = 0
 	if (IsHomun(myid)==1) then
 		htype=GetV(V_HOMUNTYPE,myid)
-		if htype > 47 then -- it's a Homun S
-			if htype==EIRA and UseEiraEraseCutter==1 then
-				skill=MH_ERASER_CUTTER
-				if EiraEraseCutterLevel==nil then
-					level=4
-				else
-					level=EiraEraseCutterLevel
-				end
-			elseif htype==BAYERI and UseBayeriStahlHorn==1 then
-				skill=MH_STAHL_HORN
-				if BayeriStahlHornLevel==nil then
-					level=5
-				else
-					level=BayeriStahlHornLevel
-				end
-			elseif htype==SERA and UseSeraParalyze==1 then
-				skill=MH_NEEDLE_OF_PARALYZE
-				if SeraParalyzeLevel==nil then
-					level=5
-				else
-					level=SeraParalyzeLevel
-				end
-			elseif htype==ELEANOR and UseEleanorSonicClaw==1 and ( EleanorMode==0 or EleanorDoNotSwitchMode==1 ) then
-				skill=MH_SONIC_CRAW
-				if EleanorSonicClawLevel==nil then
-					level=5
-				else
-					level=EleanorSonicClawLevel
-				end
-			elseif htype==ELEANOR and UseEleanorTinderBreaker==1 and EleanorMode==1 then
-				skill=MH_TINDER_BREAKER
-				if EleanorTinderBreakerLevel==nil then
-					level=5
-				else
-					level=EleanorTinderBreakerLevel
-				end
-			end
-		end
 		if level ~=0 then
 			return skill,level
 		end
@@ -1823,25 +1766,6 @@ function GetComboSkill(myid)
 	local level = 0
 	if (IsHomun(myid)==1) then
 		htype=GetV(V_HOMUNTYPE,myid)
-		if htype==ELEANOR then
-			if EleanorMode==0 or EleanorDoNotSwitchMode==1 then
-				if ComboSCTimeout > GetTick() and MySpheres >= AutoComboSpheres then
-					skill=MH_SILVERVEIN_RUSH
-					if EleanorSilverveinLevel==nil then
-						level=5
-					else
-						level=EleanorSilverveinLevel
-					end
-				elseif ComboSVTimeout > GetTick()  then
-					skill=MH_MIDNIGHT_FRENZY
-					if EleanorMidnightLevel==nil then
-						level=5
-					else
-						level=EleanorMidnightLevel
-					end
-				end
-			end
-		end
 		if level ~=0 then
 			return skill,level
 		end
@@ -1854,36 +1778,6 @@ function GetGrappleSkill(myid)
 	local level = 0
 	if (IsHomun(myid)==1) then
 		htype=GetV(V_HOMUNTYPE,myid)
-		if htype==ELEANOR and MySpheres >= AutoComboSpheres then
-			if EleanorMode==1 or EleanorDoNotSwitchMode==1 then
-				if ComboSCTimeout > GetTick() then
-					if MySpheres >= AutoComboSpheres -1 then
-						skill=MH_CBC
-						if EleanorCBCLevel==nil then
-							level=5
-						else
-							level=EleanorCBCLevel
-						end
-					end
-				elseif ComboSVTimeout > GetTick() then
-					if MySpheres >= AutoComboSpheres -1 then
-						skill=MH_EQC
-						if EleanorEQCLevel==nil then
-							level=5
-						else
-							level=EleanorEQCLevel
-						end
-					end
-				elseif MySpheres >= AutoComboSpheres then
-					skill=MH_TINDER_BREAKER
-					if EleanorTinderBreakerLevel==nil then
-						level=5
-					else
-						level=EleanorTinderBreakerLevel
-					end				
-				end
-			end
-		end
 		if level ~=0 then
 			return skill,level
 		end
@@ -1955,24 +1849,6 @@ end
 
 function GetDebuffSkill(myid)
 	if (IsHomun(myid)==1) then
-		if GetV(V_HOMUNTYPE,MyID)==EIRA and UseEiraSilentBreeze==1 then
-			skill=MH_SILENT_BREEZE
-			if EiraSilentBreezeLevel==nil then
-				level=5
-			else
-				level=EiraSilentBreezeLevel
-			end
-			return skill,level
-		elseif GetV(V_HOMUNTYPE,MyID)==DIETER and UseDieterVolcanicAsh==1 then
-			skill=MH_VOLCANIC_ASH
-			level=5
-			local t = GetTick()
-			if (AshTimeout[1] < t or AshTimeout[2] < t or AshTimeout[3] < t) then
-				return skill,level
-			else 
-				return 0,0
-			end
-		end
 	else
 		for i,v in ipairs(DebuffSkillList) do
 			level = SkillList[MercType][v]
@@ -1988,27 +1864,6 @@ end
 function GetMinionSkill(myid)
 	local level,skill=0,0
 	if (IsHomun(myid)==1) then
-		if GetV(V_HOMUNTYPE,MyID)==SERA and UseSeraCallLegion==1 then
-			skill=MH_SUMMON_LEGION
-			TraceAI("GetMinionSkill"..skill)
-			if SeraCallLegionLevel == nil then
-				level=5
-			elseif SeraCallLegionLevel < 1 then
-				skill,level=0,0
-			elseif SeraCallLegionLevel > 5 then
-				level=5
-			else
-				level=SeraCallLegionLevel
-			end
-			TraceAI("GetMinionSkill "..skill..level)
-			if AutoSkillCooldown[skill]~=nil then
-				if GetTick() < AutoSkillCooldown[skill] then -- in cooldown
-					level=0
-					skill=0
-				end
-			end
-			return skill,level
-		end
 	end
 	return 0,0
 end
@@ -2041,42 +1896,6 @@ function GetMobSkill(myid)
 		htype=GetV(V_HOMUNTYPE,MyID)
 		if htype <17 then
 			skill=0
-		else -- it's a homun s
-			if htype==EIRA and UseEiraXenoSlasher==1 then
-				skill=MH_XENO_SLASHER
-				if EiraXenoSlasherLevel==nil then
-					level=4
-				else
-					level=EiraXenoSlasherLevel
-				end
-			elseif htype==BAYERI and UseBayeriHailegeStar==1 then
-				skill=MH_HEILIGE_STANGE
-				if BayeriHailegeStarLevel==nil then
-					level=5
-				else
-					level=BayeriHailegeStarLevel
-				end
-			elseif htype==SERA and UseSeraPoisonMist==1 and PoisonMistMode==0 then
-				skill=MH_POISON_MIST
-				if SeraPoisonMistLevel==nil then
-					level=5
-				else
-					level=SeraPoisonMistLevel
-				end
-			elseif htype==DIETER and UseDieterLavaSlide==1 and LavaSlideMode==0 then
-				skill=MH_LAVA_SLIDE
-				if DieterLavaSlideLevel==nil then
-					level=10
-				else
-					level=DieterLavaSlideLevel
-				end
-			end 
-			if AutoSkillCooldown[skill]~=nil then
-				if GetTick() < AutoSkillCooldown[skill] then -- in cooldown
-					level=0
-					skill=0
-				end
-			end
 		end
 		return skill,level
 	else -- SO MUCH EASIER WHEN LEVEL ISN'T SELECTABLE!!!!
@@ -2137,15 +1956,6 @@ function	GetSOffensiveSkill(myid)
 	local skillopt = 0
 	if (IsHomun(myid)==1) then
 		htype=GetV(V_HOMUNTYPE,myid)
-		if (htype==BAYERI and UseBayeriAngriffModus~=0) then
-			skill=MH_ANGRIFFS_MODUS
-			level = 5
-			skillopt=UseBayeriAngriffModus
-		elseif	(htype==DIETER and UseDieterMagmaFlow~=0) then
-			skill=MH_MAGMA_FLOW
-			level = 5
-			skillopt=UseDieterMagmaFlow
-		end
 		return skill,level,skillopt
 	else
 		level=SkillList[MercType][MER_BLESSING]
@@ -2164,15 +1974,6 @@ function	GetSDefensiveSkill(myid)
 	local skillopt=0
 	if (IsHomun(myid)==1) then
 		htype=GetV(V_HOMUNTYPE,myid)
-		if (htype==BAYERI and UseBayeriGoldenPherze~=0) then
-			skill=MH_GOLDENE_FERSE
-			level = 5
-			skillopt=UseBayeriGoldenPherze
-		elseif	(htype==DIETER and UseDieterGraniticArmor~=0) then
-			skill=MH_GRANITIC_ARMOR
-			level = 5
-			skillopt=UseDieterGraniticArmor
-		end
 		return skill,level,skillopt
 	else
 		level=SkillList[MercType][MER_KYRIE]
@@ -2192,19 +1993,6 @@ function	GetSOwnerBuffSkill(myid)
 	local skillopt = 0
 	if (IsHomun(myid)==1) then
 		htype=GetV(V_HOMUNTYPE,myid)
-		if (htype==EIRA and UseEiraOveredBoost~=0) then
-			skill=MH_OVERED_BOOST
-			level = 5
-			skillopt=UseEiraOveredBoost
-		elseif	(htype==DIETER and UseDieterPyroclastic~=0) then
-			skill=MH_PYROCLASTIC
-			if DieterPyroclasticLevel==nil then
-				level = 10
-			else
-				level=DieterPyroclasticLevel
-			end
-			skillopt=UseDieterPyroclastic
-		end
 		return skill,level,skillopt
 	else
 		level=SkillList[MercType][MER_INCAGI]
@@ -2224,15 +2012,6 @@ function GetSightOrAoE(myid)
 	local skillopt = 0
 	if (IsHomun(myid)==1) then
 		htype=GetV(V_HOMUNTYPE,myid)
-		if	(htype==DIETER and UseDieterLavaSlide==1 and LavaSlideMode~=0) then
-			skill=MH_LAVA_SLIDE
-			level = 10
-			skillopt=LavaSlideMode
-		elseif (htype==SERA and PoisonMistMode~=0 and UseSeraPoisonMist==1) then
-			skill=MH_POISON_MIST
-			level = 5
-			skillopt=PoisonMistMode
-		end
 	else
 		if MercType==2 then
 			skill=MER_SIGHT
@@ -2314,12 +2093,7 @@ function	GetDefensiveOwnerSkill(myid)
 	local skill = 0
 	local skillopt = 0
 	if (IsHomun(myid)==1) then
-		if GetV(V_HOMUNTYPE,MyID)==SERA and UseSeraPainkiller~=0 then
-			level=5
-			return MH_PAIN_KILLER,level,UseSeraPainkiller
-		else
-			return 0,0,0
-		end
+		return 0,0,0
 	else
 		level=SkillList[MercType][MER_KYRIE]
 		if level~=nil then
@@ -2357,15 +2131,6 @@ function GetHealingSkill(myid)
 		if htype < 17 then --if it's not a homun S just run it through modulo. 
 			homuntype=modulo(GetV(V_HOMUNTYPE,myid),4)
 		else --If it's a homun S, get the OldHomunType
-			if homuntype == EIRA and HealOwnerBreeze == 1 then --Handling for Eira silent breeze
-				skill=MH_SILENT_BREEZE
-				if GetTick() < AutoSkillCooldown[skill] then
-					level=0
-				else
-					level=5
-				end
-				return skill,level
-			end
 			homuntype=modulo(OldHomunType,4)
 		end
 		if (homuntype==1) then -- It's a lif
@@ -2539,103 +2304,33 @@ function DoSkill(skill,level,target,mode,targx,targy)
 			logappend("AAI_SKILLFAIL", "Mode set "..mode.." skill "..skill.." level "..level)
 		end
 	end
-	local t=GetTick();
 	delay=AutoSkillDelay + GetSkillInfo(skill,4,level)+GetSkillInfo(skill,5,level)*CastTimeRatio
-	AutoSkillCastTimeout=delay+t
+	
+	-- Song buff optimization: Skip AutoSkillDelay when buffed by bard songs
+	if (SingBuffed == 1) then
+		delay = GetSkillInfo(skill,4,level)+GetSkillInfo(skill,5,level)*CastTimeRatio
+		TraceAI("Song buffed - skipping AutoSkillDelay for faster casting")
+	end
+	
+	AutoSkillCastTimeout=delay+GetTick()
 	if AutoSkillCooldown[skill]~=nil then
-		AutoSkillCooldown[skill]=t+GetSkillInfo(skill,9,level)+delay
-	elseif (skill==MH_VOLCANIC_ASH) then --handle the three ash timeouts
-		if (AshTimeout[1] < t) then
-			AshTimeout[1]=t+GetSkillInfo(skill,9,level)+delay
-		elseif (AshTimeout[2] < t) then
-			AshTimeout[2]=t+GetSkillInfo(skill,9,level)+delay
-		else 
-			AshTimeout[3]=t+GetSkillInfo(skill,9,level)+delay
-		end
+		AutoSkillCooldown[skill]=GetTick()+GetSkillInfo(skill,9,level)+delay
 	end
 	delay = delay + GetSkillInfo(skill,6,level)
-	AutoSkillTimeout=t+delay
+	AutoSkillTimeout=GetTick()+delay
 	if AutoSkillCooldown[skill]~=nil then
 		TraceAI("DoSkill: "..skill.." level:"..level.." target:"..target.." mode:"..targetmode.." delay "..delay.." cooldown: "..AutoSkillCooldown[skill]-GetTick())
 	else
 		TraceAI("DoSkill: "..skill.." level:"..level.." target:"..target.." mode:"..targetmode.." delay "..delay)
 	end
 	if skill==MH_MIDNIGHT_FRENZY then
-		MySpheres = math.max(0,MySpheres - 2)
-		ComboSVTimeout=0
-		UpdateTimeoutFile()
 	elseif skill==MH_SILVERVEIN_RUSH then
-		ComboSVTimeout=GetTick()+2000
-		ComboSCTimeout=0
-		MySpheres = math.max(0,MySpheres - 1)
-		UpdateTimeoutFile()
 	elseif skill==MH_SONIC_CRAW then
-		ComboSCTimeout=GetTick()+2000
-		ComboSVTimeout=0
-	elseif skill==MH_TINDER_BREAKER then
-		ComboSCTimeout=GetTick()+2000
-		ComboSVTimeout=0
-		MySpheres = math.max(0,MySpheres - 1)
-	elseif skill==MH_CBC then
-		ComboSVTimeout=GetTick()+2000
-		ComboSCTimeout=0
-		MySpheres = math.max(0,MySpheres - 1)
-	elseif skill==MH_EQC then
-		ComboSVTimeout=0
-		ComboSCTimeout=0
-		--No sphere use?
-	else --Combo wasn't used, so kill the timeouts
-		ComboSCTimeout=0
-		ComboSVTimeout=0
 	end
-
 	TraceAI("DoSkill: "..skill.." level:"..level.." target:"..target.." mode:"..targetmode.." delay "..delay)
 	logappend("AAI_SKILLFAIL", "DoSkill: "..skill.." level:"..level.." target:"..target.." mode:"..targetmode.." delay "..delay)
 	return
 end
-
-function modtwroSend()
-	if modtwROSkillGroundID~=0 then
-		logappend("AAI_Lag","Calling skillground function")
-		OldSkillGround(MyID,modtwROSkillGroundLV,modtwROSkillGroundID,modtwROSkillGroundX,modtwROSkillGroundY)
-		LagReductionCD=LagReduction
-	elseif modtwROSkillObjectID~=0 then
-		logappend("AAI_Lag","Calling SkillObject function")
-		OldSkillObject(MyID,modtwROSkillObjectLV,modtwROSkillObjectID,modtwROSkillObjectTarg)
-		LagReductionCD=LagReduction
-	else
-		if modtwRODidMove==0 then
-			if modtwROMoveX~=0 then
-				logappend("AAI_Lag","Calling Move function, didmove=0")
-				OldMove(MyID,modtwROMoveX,modtwROMoveY)
-				LagReductionCD=LagReduction
-				modtwRODidMove=1
-				modtwRODidAttack=0
-			end
-		else
-			modtwRODidMove=0
-		end
-		if modtwRODidAttack==0 then
-			if modtwROAttackTarget~=0 then
-				logappend("AAI_Lag","Calling attack function, didattack=0")
-				OldAttack(MyID,modtwROAttackTarget)
-				LagReductionCD=LagReduction
-				modtwRODidAttack=1
-			end
-		else
-			modtwRODidAttack=0
-		end
-	end
-	modtwROSkillGroundLV,modtwROSkillGroundID,modtwROSkillGroundX,modtwROSkillGroundY,modtwROSkillObjectLV,modtwROSkillObjectID,modtwROSkillObjectTarg,modtwROAttackTarget=0,0,0,0,0,0,0,0
-	modtwROAttackTarget,modtwROMoveX,modtwROMoveY=0,0,0
-end
-
-
-
-
-
-
-
 
 -- I SHOULDNT HAVE TO CODE THIS!
 function modulo(a,b)
@@ -2826,4 +2521,501 @@ end
 function List.size (list)
 	local size = list.last - list.first + 1
 	return size
+end
+
+--#########################
+--### Sing Buff System ###
+--######################### 
+
+-- Enhanced Song/Dance Buff System inspired by AIthort implementation
+-- Features:
+-- - Distance-based performer classification (close vs distant)
+-- - Automatic buff duration tracking (19 seconds)
+-- - Smart targeting (only seek when not buffed)
+-- - Uses existing StationaryAggroDist for owner proximity safety
+-- - Skill delay optimization when buffed
+-- - Improved movement logic with 3-cell buff range
+function CheckForSingBuff()
+	-- Check if the feature is enabled in config
+	if (PickUpBraggi ~= 1) then
+		return false  -- Feature disabled, no action taken
+	end
+	
+	local actors = GetActors()
+	local currentTime = GetTick()
+	local my_x, my_y = GetV(V_POSITION, MyID)
+	local owner_x, owner_y = GetV(V_POSITION, GetV(V_OWNER, MyID))
+	
+	-- Clean up stale bard data BEFORE attempting rebuff logic
+	-- This prevents chasing performers who have already left the area
+	for bardID, bardInfo in pairs(SavedBards) do
+		local bx, by = GetV(V_POSITION, bardID)
+		local shouldRemove = false
+		
+		-- Remove if bard no longer exists
+		if (bx == -1) then
+			shouldRemove = true
+			TraceAI("Cleaning up non-existent bard "..bardID.." from saved data")
+		-- Remove if song has ended and we haven't seen them perform recently (5 mins)
+		elseif (bardInfo.songEndTime ~= nil and currentTime > bardInfo.songEndTime + 60000 and 
+				bardInfo.lastSeen ~= nil and currentTime - bardInfo.lastSeen > 300000) then
+			shouldRemove = true
+			TraceAI("Cleaning up old bard "..bardID.." from saved data (song ended + not seen recently)")
+		end
+		
+		if (shouldRemove) then
+			SavedBards[bardID] = nil
+			if (CurrentBuffProvider == bardID) then
+				CurrentBuffProvider = 0
+			end
+		end
+	end
+	
+	-- Initialize tracking tables
+	local CloseSingers = {}
+	local DistantSingers = {}
+
+	-- STEP 1: Before scanning current performers, update all known performers
+	-- This is a failsafe due to how MOTION dection works causing a loop
+	for performerID, data in pairs(SavedBards) do
+    	if GetV(V_MOTION, performerID) ~= MOTION_PERFORM then
+        	-- They stopped performing - mark as not performing
+        	data.wasPerforming = data.isPerforming or false
+        	data.isPerforming = false
+    	end
+	end
+
+	-- STEP 2: Scan all actors for performers and classify by distance
+	for i,v in ipairs(actors) do
+		if (IsMonster(v)~=1 and v~=GetV(V_OWNER,MyID) and v~=MyID) then
+			-- Always look for MOTION_PERFORM for bard system (dancers handled separately)
+			if (GetV(V_MOTION,v) == MOTION_PERFORM) then
+				local singer_x, singer_y = GetV(V_POSITION, v)
+				if (singer_x ~= -1) then
+					local distance = GetDistance(my_x, my_y, singer_x, singer_y)
+					local owner_distance = GetDistance(owner_x, owner_y, singer_x, singer_y)
+					
+					-- Only consider singers within reasonable range of owner (safety check)
+					if (owner_distance <= StationaryAggroDist) then
+						-- Save/update this bard with current info
+						if (SavedBards[v] == nil) then
+							SavedBards[v] = {}
+						end
+						SavedBards[v].lastSeen = currentTime
+						SavedBards[v].songEndTime = currentTime + 180000  -- 3 minutes estimate
+						
+						-- Track performance state transition
+						-- This is a failsafe due to how MOTION detection works causing a loop
+				        SavedBards[v].wasPerforming = SavedBards[v].isPerforming or false
+      					SavedBards[v].isPerforming = true
+
+						-- Reset homunculus buff status to sync with fresh song performance
+						-- This ensures we always get the fresh buff when a new song starts
+						if (SingBuffed == 1 and not SavedBards[v].wasPerforming) then
+							SingBuffed = 0
+							SingTimer = 0
+							SingTarget = 0
+							SingSeeking = 0
+							TraceAI("Detected fresh bard performance - resetting buff status to resync with song")
+						end
+						
+						if (distance <= 3) then
+							-- Close singer - immediate buff eligibility
+							CloseSingers[v] = distance
+						else
+							-- Distant singer - potential movement target
+							DistantSingers[v] = distance
+						end
+					end
+				end
+			end
+		end
+	end
+	
+	-- If we have close singers, mark as buffed immediately
+	for singerID, distance in pairs(CloseSingers) do
+		if (SingBuffed == 0) then
+			SingBuffed = 1
+			SingTimer = GetTick() + 19000  -- 19 second duration
+			SingTarget = singerID
+			CurrentBuffProvider = singerID
+			-- Mark that this bard buffed us
+			if (SavedBards[singerID] == nil) then
+				SavedBards[singerID] = {}
+			end
+			SavedBards[singerID].lastBuffed = currentTime
+			SavedBards[singerID].songEndTime = currentTime + 180000
+			TraceAI("Sing buffed by close performer "..singerID.." at distance "..distance)
+		end
+		break  -- Only need one close singer
+	end
+	
+	-- If we're currently seeking a singer, check if we're close enough or need to update path
+	if (SingSeeking == 1 and SingTarget ~= 0) then
+		local singer_x, singer_y = GetV(V_POSITION, SingTarget)
+		
+		-- Check if target still exists
+		if (singer_x == -1) then
+			-- Target disappeared, reset seeking
+			SingSeeking = 0
+			SingTarget = 0
+			TraceAI("Sing target disappeared - resetting seek status")
+			return false
+		end
+		
+		local distance = GetDistance(my_x, my_y, singer_x, singer_y)
+		if (distance <= 3) then
+			-- We reached buff range, mark as buffed and stop seeking
+			SingBuffed = 1
+			SingTimer = GetTick() + 19000
+			SingSeeking = 0
+			CurrentBuffProvider = SingTarget
+			-- Mark that this bard buffed us
+			if (SavedBards[SingTarget] == nil) then
+				SavedBards[SingTarget] = {}
+			end
+			SavedBards[SingTarget].lastBuffed = currentTime
+			SavedBards[SingTarget].songEndTime = currentTime + 180000
+			TraceAI("Reached buff range of performer "..SingTarget.." - marked as sing buffed")
+			return false
+		else
+			-- Still seeking, check if we need to update movement
+			local dest_x, dest_y = Closest(MyID, singer_x, singer_y, 3)
+			
+			-- Only issue new move command if destination changed significantly or we're not moving
+			if (MyDestX ~= dest_x or MyDestY ~= dest_y or GetV(V_MOTION, MyID) == MOTION_STAND) then
+				MyDestX, MyDestY = dest_x, dest_y
+				Move(MyID, MyDestX, MyDestY)
+				TraceAI("Updating seek path to performer "..SingTarget.." - moving to "..formatpos(dest_x, dest_y))
+			end
+			return true  -- Return true to indicate we're still seeking
+		end
+	end
+	
+	-- Only seek singers if not currently buffed and not already seeking
+	if (SingBuffed == 0 and SingSeeking == 0) then
+		local closestDistance = 999
+		local closestSinger = 0
+		
+		-- First priority: Check if our previous buff provider might still have their song up
+		if (CurrentBuffProvider ~= 0 and SavedBards[CurrentBuffProvider] ~= nil) then
+			local bardInfo = SavedBards[CurrentBuffProvider]
+			if (bardInfo.songEndTime ~= nil and bardInfo.songEndTime > currentTime) then
+				local prev_x, prev_y = GetV(V_POSITION, CurrentBuffProvider)
+				if (prev_x ~= -1) then
+					local prev_distance = GetDistance(my_x, my_y, prev_x, prev_y)
+					local owner_distance = GetDistance(owner_x, owner_y, prev_x, prev_y)
+					-- Only consider if still within safe range of owner
+					if (owner_distance <= StationaryAggroDist and prev_distance <= 15) then
+						closestDistance = prev_distance
+						closestSinger = CurrentBuffProvider
+						TraceAI("Prioritizing previous buff provider "..CurrentBuffProvider.." (song might still be active)")
+					end
+				end
+			end
+		end
+		
+		-- Second priority: Check other saved bards who might still have songs up
+		if (closestSinger == 0) then
+			for bardID, bardInfo in pairs(SavedBards) do
+				if (bardInfo.songEndTime ~= nil and bardInfo.songEndTime > currentTime) then
+					local bard_x, bard_y = GetV(V_POSITION, bardID)
+					if (bard_x ~= -1) then
+						local distance = GetDistance(my_x, my_y, bard_x, bard_y)
+						local owner_distance = GetDistance(owner_x, owner_y, bard_x, bard_y)
+						if (owner_distance <= StationaryAggroDist and distance < closestDistance and distance <= 15) then
+							closestDistance = distance
+							closestSinger = bardID
+							TraceAI("Found saved bard "..bardID.." who might still have song active")
+						end
+					end
+				end
+			end
+		end
+		
+		-- Third priority: Find the closest distant singer who is actively performing
+		if (closestSinger == 0) then
+			for singerID, distance in pairs(DistantSingers) do
+				if (distance < closestDistance) then
+					closestDistance = distance
+					closestSinger = singerID
+				end
+			end
+		end
+		
+		-- Start seeking the selected singer if found
+		if (closestSinger ~= 0) then
+			local singer_x, singer_y = GetV(V_POSITION, closestSinger)
+			local dest_x, dest_y = Closest(MyID, singer_x, singer_y, 3)
+			
+			SingSeeking = 1
+			SingTarget = closestSinger
+			MyDestX, MyDestY = dest_x, dest_y
+			Move(MyID, MyDestX, MyDestY)
+			TraceAI("Seeking performer "..closestSinger.." for buff at "..formatpos(dest_x, dest_y).." (distance: "..closestDistance..")")
+			return true
+		end
+	end
+
+	return false  -- No action taken
+end
+
+--############################
+--### Dance Buff System   ###
+--############################
+
+-- Separate Dancer Buff System - Independent from Bard System
+-- Features:
+-- - Distance-based dancer classification (close vs distant)
+-- - Automatic buff duration tracking (19 seconds)
+-- - Smart targeting with bard priority logic:
+--   * Seeks dancers IF already bard buffed (additional benefits)
+--   * Seeks dancers IF no bards found (fallback option)
+--   * Seeks dancers IF bard seeking disabled (primary choice)
+-- - Uses existing StationaryAggroDist for owner proximity safety
+-- - Improved movement logic with 3-cell buff range
+-- - Works alongside bard system with proper priority
+function CheckForDanceBuff()
+	-- Check if the feature is enabled in config
+	if (PickUpDancer ~= 1) then
+		return false  -- Feature disabled, no action taken
+	end
+	
+	-- Only seek dancers if:
+	-- 1. We already have bard buffs (bard found and buffed), OR
+	-- 2. Bard seeking is enabled but we're not currently seeking bards (couldn't find bard)
+	local canSeekDancers = false
+	
+	if (SingBuffed == 1) then
+		-- Case 1: Already have bard buff, can seek dancers for additional benefits
+		canSeekDancers = true
+	elseif (PickUpBraggi == 1 and SingSeeking == 0 and SingBuffed == 0) then
+		-- Case 2: Bard seeking enabled but not actively seeking and not buffed = no bards found
+		canSeekDancers = true
+	elseif (PickUpBraggi == 0) then
+		-- Case 3: Bard seeking disabled, dancers are primary choice
+		canSeekDancers = true
+	end
+	
+	if (not canSeekDancers) then
+		return false  -- Still prioritizing bard seeking
+	end
+	
+	local actors = GetActors()
+	local currentTime = GetTick()
+	local my_x, my_y = GetV(V_POSITION, MyID)
+	local owner_x, owner_y = GetV(V_POSITION, GetV(V_OWNER, MyID))
+	
+	-- Clean up stale dancer data BEFORE attempting rebuff logic
+	-- This prevents chasing dancers who have already left the area
+	for dancerID, dancerInfo in pairs(SavedDancers) do
+		local dx, dy = GetV(V_POSITION, dancerID)
+		local shouldRemove = false
+		
+		-- Remove if dancer no longer exists
+		if (dx == -1) then
+			shouldRemove = true
+			TraceAI("Cleaning up non-existent dancer "..dancerID.." from saved data")
+		-- Remove if song has ended and we haven't seen them perform recently (5 mins)
+		elseif (dancerInfo.songEndTime ~= nil and currentTime > dancerInfo.songEndTime + 60000 and 
+				dancerInfo.lastSeen ~= nil and currentTime - dancerInfo.lastSeen > 300000) then
+			shouldRemove = true
+			TraceAI("Cleaning up old dancer "..dancerID.." from saved data (song ended + not seen recently)")
+		end
+		
+		if (shouldRemove) then
+			SavedDancers[dancerID] = nil
+			if (CurrentDanceProvider == dancerID) then
+				CurrentDanceProvider = 0
+			end
+		end
+	end
+	
+	-- Initialize tracking tables
+	local CloseDancers = {}
+	local DistantDancers = {}
+
+	-- STEP 1: Before scanning current performers, update all known performers
+	-- This is a failsafe due to how MOTION detection works causing a loop
+	for dancerID, data in pairs(SavedDancers) do
+    	if GetV(V_MOTION, dancerID) ~= MOTION_DANCE then
+        	-- They stopped dancing - mark as not dancing
+        	data.wasDancing = data.isDancing or false
+        	data.isDancing = false
+    	end
+	end
+	
+	-- STEP 2: Scan all actors for dancers and classify by distance
+	for i,v in ipairs(actors) do
+		if (IsMonster(v)~=1 and v~=GetV(V_OWNER,MyID) and v~=MyID) then
+			-- Always look for MOTION_DANCE for dancer system
+			if (GetV(V_MOTION,v) == MOTION_DANCE) then
+				local dancer_x, dancer_y = GetV(V_POSITION, v)
+				if (dancer_x ~= -1) then
+					local distance = GetDistance(my_x, my_y, dancer_x, dancer_y)
+					local owner_distance = GetDistance(owner_x, owner_y, dancer_x, dancer_y)
+					
+					-- Only consider dancers within reasonable range of owner (safety check)
+					if (owner_distance <= StationaryAggroDist) then
+						-- Save/update this dancer with current info
+						if (SavedDancers[v] == nil) then
+							SavedDancers[v] = {}
+						end
+						SavedDancers[v].lastSeen = currentTime
+						SavedDancers[v].songEndTime = currentTime + 180000  -- 3 minutes estimate
+						
+						-- Track performance state transition
+						-- This is a failsafe due to how MOTION detection works causing a loop
+				        SavedDancers[v].wasDancing = SavedDancers[v].isDancing or false
+      					SavedDancers[v].isDancing = true
+
+						-- Reset homunculus dance buff status to sync with fresh dance performance
+						-- This ensures we always get the fresh buff when a new dance starts
+						if (DanceBuffed == 1 and not SavedDancers[v].wasDancing) then
+							DanceBuffed = 0
+							DanceTimer = 0
+							DanceTarget = 0
+							DanceSeeking = 0
+							TraceAI("Detected fresh dancer performance - resetting dance buff status to resync with song")
+						end
+						
+						if (distance <= 3) then
+							-- Close dancer - immediate buff eligibility
+							CloseDancers[v] = distance
+						else
+							-- Distant dancer - potential movement target
+							DistantDancers[v] = distance
+						end
+					end
+				end
+			end
+		end
+	end
+	
+	-- If we have close dancers, mark as buffed immediately
+	for dancerID, distance in pairs(CloseDancers) do
+		if (DanceBuffed == 0) then
+			DanceBuffed = 1
+			DanceTimer = GetTick() + 19000  -- 19 second duration
+			DanceTarget = dancerID
+			CurrentDanceProvider = dancerID
+			-- Mark that this dancer buffed us
+			if (SavedDancers[dancerID] == nil) then
+				SavedDancers[dancerID] = {}
+			end
+			SavedDancers[dancerID].lastBuffed = currentTime
+			SavedDancers[dancerID].songEndTime = currentTime + 180000
+			TraceAI("Dance buffed by close performer "..dancerID.." at distance "..distance)
+		end
+		break  -- Only need one close dancer
+	end
+	
+	-- If we're currently seeking a dancer, check if we're close enough or need to update path
+	if (DanceSeeking == 1 and DanceTarget ~= 0) then
+		local dancer_x, dancer_y = GetV(V_POSITION, DanceTarget)
+		
+		-- Check if target still exists
+		if (dancer_x == -1) then
+			-- Target disappeared, reset seeking
+			DanceSeeking = 0
+			DanceTarget = 0
+			TraceAI("Dance target disappeared - resetting seek status")
+			return false
+		end
+		
+		local distance = GetDistance(my_x, my_y, dancer_x, dancer_y)
+		if (distance <= 3) then
+			-- We reached buff range, mark as buffed and stop seeking
+			DanceBuffed = 1
+			DanceTimer = GetTick() + 19000
+			DanceSeeking = 0
+			CurrentDanceProvider = DanceTarget
+			-- Mark that this dancer buffed us
+			if (SavedDancers[DanceTarget] == nil) then
+				SavedDancers[DanceTarget] = {}
+			end
+			SavedDancers[DanceTarget].lastBuffed = currentTime
+			SavedDancers[DanceTarget].songEndTime = currentTime + 180000
+			TraceAI("Reached buff range of dancer "..DanceTarget.." - marked as dance buffed")
+			return false
+		else
+			-- Still seeking, check if we need to update movement
+			local dest_x, dest_y = Closest(MyID, dancer_x, dancer_y, 3)
+			
+			-- Only issue new move command if destination changed significantly or we're not moving
+			if (MyDestX ~= dest_x or MyDestY ~= dest_y or GetV(V_MOTION, MyID) == MOTION_STAND) then
+				MyDestX, MyDestY = dest_x, dest_y
+				Move(MyID, MyDestX, MyDestY)
+				TraceAI("Updating seek path to dancer "..DanceTarget.." - moving to "..formatpos(dest_x, dest_y))
+			end
+			return true  -- Return true to indicate we're still seeking
+		end
+	end
+	
+	-- Only seek dancers if not currently dance buffed and not already seeking
+	if (DanceBuffed == 0 and DanceSeeking == 0) then
+		local closestDistance = 999
+		local closestDancer = 0
+		
+		-- First priority: Check if our previous dance buff provider might still have their song up
+		if (CurrentDanceProvider ~= 0 and SavedDancers[CurrentDanceProvider] ~= nil) then
+			local dancerInfo = SavedDancers[CurrentDanceProvider]
+			if (dancerInfo.songEndTime ~= nil and dancerInfo.songEndTime > currentTime) then
+				local prev_x, prev_y = GetV(V_POSITION, CurrentDanceProvider)
+				if (prev_x ~= -1) then
+					local prev_distance = GetDistance(my_x, my_y, prev_x, prev_y)
+					local owner_distance = GetDistance(owner_x, owner_y, prev_x, prev_y)
+					-- Only consider if still within safe range of owner
+					if (owner_distance <= StationaryAggroDist and prev_distance <= 15) then
+						closestDistance = prev_distance
+						closestDancer = CurrentDanceProvider
+						TraceAI("Prioritizing previous dance buff provider "..CurrentDanceProvider.." (song might still be active)")
+					end
+				end
+			end
+		end
+		
+		-- Second priority: Check other saved dancers who might still have songs up
+		if (closestDancer == 0) then
+			for dancerID, dancerInfo in pairs(SavedDancers) do
+				if (dancerInfo.songEndTime ~= nil and dancerInfo.songEndTime > currentTime) then
+					local dancer_x, dancer_y = GetV(V_POSITION, dancerID)
+					if (dancer_x ~= -1) then
+						local distance = GetDistance(my_x, my_y, dancer_x, dancer_y)
+						local owner_distance = GetDistance(owner_x, owner_y, dancer_x, dancer_y)
+						if (owner_distance <= StationaryAggroDist and distance < closestDistance and distance <= 15) then
+							closestDistance = distance
+							closestDancer = dancerID
+							TraceAI("Found saved dancer "..dancerID.." who might still have song active")
+						end
+					end
+				end
+			end
+		end
+		
+		-- Third priority: Find the closest distant dancer who is actively dancing
+		if (closestDancer == 0) then
+			for dancerID, distance in pairs(DistantDancers) do
+				if (distance < closestDistance) then
+					closestDistance = distance
+					closestDancer = dancerID
+				end
+			end
+		end
+		
+		-- Start seeking the selected dancer if found
+		if (closestDancer ~= 0) then
+			local dancer_x, dancer_y = GetV(V_POSITION, closestDancer)
+			local dest_x, dest_y = Closest(MyID, dancer_x, dancer_y, 3)
+			
+			DanceSeeking = 1
+			DanceTarget = closestDancer
+			MyDestX, MyDestY = dest_x, dest_y
+			Move(MyID, MyDestX, MyDestY)
+			TraceAI("Seeking dancer "..closestDancer.." for buff at "..formatpos(dest_x, dest_y).." (distance: "..closestDistance..")")
+			return true
+		end
+	end
+
+	return false  -- No action taken
 end

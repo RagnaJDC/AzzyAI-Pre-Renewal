@@ -4,8 +4,12 @@
 -- Permission granted to distribute in unmodified form
 -- Please contact me via the iRO Forums if you wish to modify
 -- so that we can work together to extend and improve this AI.
+--
+-- Modified for uaRO pre-renewal server compatibility by removing S-Type homunculus features.
+-- This modified version is intended for uaRO server only and should not be distributed outside of uaRO
+-- to keep within Dr. Azzy's original wishes and due to him not granting permission to distribute modified versions.
 -----------------------------
-Version="1.56"
+Version="1.54-uaRO-PreRenewal"
 ErrorCode=""
 ErrorInfo=""
 LastSavedDate=""
@@ -27,11 +31,12 @@ dofile("./AI/USER_AI/H_Extra.lua")
 
 function WriteStartupLog(Version,ErrorCode,ErrorInfo)
 	local verspattern="%d.%d%d"
+	OutFile=io.open("AAIStartH.txt","w")
 	if AUVersion==nil then
 		AUVersion="1.30b or earlier"
 		ErrorCode="File version error"
 		ErrorInfo=ErrorInfo.."AzzyUtil.lua no version found"
-	elseif string.gfind(AUVersion,verspattern)()~="1.552" then
+	elseif string.gfind(AUVersion,verspattern)()~="1.54" then
 		ErrorCode="File version error"
 		ErrorInfo=ErrorInfo.."AzzyUtil.lua wrong version "..string.gfind(AUVersion,verspattern)().."\n"
 	end
@@ -46,7 +51,7 @@ function WriteStartupLog(Version,ErrorCode,ErrorInfo)
 		CVersion="1.30b or earlier"
 		ErrorCode="File version error"
 		ErrorInfo=ErrorInfo.."Const_.lua no version found"
-	elseif string.gfind(CVersion,verspattern)()~="1.56" then
+	elseif string.gfind(CVersion,verspattern)()~="1.54" then
 		ErrorCode="File version error"
 		ErrorInfo=ErrorInfo.."Const_.lua wrong version "..string.gfind(CVersion,verspattern)().."\n"
 	end
@@ -54,41 +59,86 @@ function WriteStartupLog(Version,ErrorCode,ErrorInfo)
 		MainVersion="1.30b or earlier"
 		ErrorCode="File version error"
 		ErrorInfo=ErrorInfo.." AI_main.lua no version found"
-	elseif string.gfind(MainVersion,verspattern)()~="1.56" then
+	elseif string.gfind(MainVersion,verspattern)()~="1.54" then
 		ErrorCode="File version error"
 		ErrorInfo=ErrorInfo.."AI_main.lua wrong version "..string.gfind(MainVersion,verspattern)().."\n"
 	end
-	--[[
-	if fsize("./AI/USER_AI/AzzyUtil.lua")~=AULen then
-		ErrorCode="Damaged File"
-		ErrorInfo=ErrorInfo.." AzzyUtil.lua has been modified or is corrupted"
+	if CVersionuaRO==nil then
+		CVersionuaRO="Unknown"
+		ErrorCode="File version error"
+		ErrorInfo=ErrorInfo.."Const_.lua uaRO version not found\n"
+	elseif CVersionuaRO~="Beta v0.85" then
+		ErrorCode="File version error"
+		ErrorInfo=ErrorInfo.."Const_.lua uaRO version mismatch: expected 'Beta v0.85', found '"..CVersionuaRO.."'\n"
 	end
-	if fsize("./AI/USER_AI/Const_.lua")~=ConstLen then
-		ErrorCode="Damaged File"
-		ErrorInfo=ErrorInfo.." Const_.lua has been modified or is corrupted"
+	if ConfigVersion==nil then
+		ConfigVersion="Unknown"
+		ErrorCode="File version error"
+		ErrorInfo=ErrorInfo.."Const_.lua config version not found\n"
+	elseif ConfigVersion~="v1.0" then
+		ErrorCode="File version error"
+		ErrorInfo=ErrorInfo.."Const_.lua config version mismatch: expected 'v1.0', found '"..ConfigVersion.."'\n"
 	end
-	if fsize("./AI/USER_AI/AI_main.lua")~=MainLen then
-		ErrorCode="Damaged File"
-		ErrorInfo=ErrorInfo.." AI_main.lua has been modified or corrupted"
+	
+	-- uaRO Server Validation - This AI is specifically modified for uaRO
+	local _0x8f2a = io.open(string.char(117,97,114,111,46,103,114,102), "r")  -- Production: Check for actual server files
+	local _0x3c7b = io.open(string.char(85,97,114,111,46,101,120,101), "r")
+	if _0x8f2a == nil or _0x3c7b == nil then
+		if _0x8f2a ~= nil then _0x8f2a:close() end
+		if _0x3c7b ~= nil then _0x3c7b:close() end
+		
+		-- Write warning to log file
+		local warningString = "AzzyAI (hom) version "..Version.."\nMain version:"..MainVersion.."\nAzzyUtil version:"..AUVersion.."\nConstant version:"..CVersion.."\nTime: "..os.date("%c").."\nLua Version:".._VERSION.."\n\nWARNING: Server Incompatibility Detected\n\nThis AI has been specifically modified for uaRO pre-renewal server.\nRequired uaRO server files were not detected.\n\nThis modified AI will NOT work with your current server.\nYou will continue to receive this error on startup.\n\nPlease use the original AzzyAI for non-uaRO servers."
+		if OutFile ~= nil then
+			OutFile:write(warningString)
+			OutFile:close()
+		end
+		
+		-- Warning popup about incompatibility
+		error("WARNING: This AI is modified for uaRO server only. Required server files not detected. This AI will NOT work with your current server and you will continue to receive this error. Please use the original AzzyAI for non-uaRO servers.")
+	else
+		_0x8f2a:close()
+		_0x3c7b:close()
 	end
-	--]]
-	if fsize("./AI/USER_AI/H_Config.lua")==3898 then
+	
+	-- Core file integrity checking for uaRO modified version
+	if fsize("./AI/USER_AI/AzzyUtil.lua")==83436 then
+		AzzyUtilVers="Default uaRO version"
+	else
+		AzzyUtilVers="Custom, modified from uaRO baseline"
+		ErrorCode="File integrity warning"
+		ErrorInfo=ErrorInfo.."AzzyUtil.lua has been modified from expected uaRO version\n"
+	end
+	if fsize("./AI/USER_AI/Const_.lua")==13680 then
+		ConstVers="Default uaRO version"
+	else
+		ConstVers="Custom, modified from uaRO baseline"
+		ErrorCode="File integrity warning"
+		ErrorInfo=ErrorInfo.."Const_.lua has been modified from expected uaRO version\n"
+	end
+	if fsize("./AI/USER_AI/AI_main.lua")==122983 then
+		MainVers="Default uaRO version"
+	else
+		MainVers="Custom, modified from uaRO baseline"
+		ErrorCode="File integrity warning"
+		ErrorInfo=ErrorInfo.."AI_main.lua has been modified from expected uaRO version\n"
+	end
+	if fsize("./AI/USER_AI/H_Config.lua")==3279 then
 		ConfigVers="Default: "..LastSavedDate
 	else
 		ConfigVers="Custom, edited "..LastSavedDate
 	end
-	if fsize("./AI/USER_AI/H_Tactics.lua")==5393 then
+	if fsize("./AI/USER_AI/H_Tactics.lua")==4068 then
 		TacticVers="Default: "..TactLastSavedDate
 	else
 		TacticVers="Custom, edited "..TactLastSavedDate
 	end
 	local OutString
 	if ErrorCode=="" then
-		OutString="AzzyAI (hom) version "..Version.."\nMain version:"..MainVersion.."\nAzzyUtil version:"..AUVersion.."\nConstant version:"..CVersion.."\nConfig: "..ConfigVers.."\nTactics: "..TacticVers.." \nTime: "..os.date("%c").."\nLua Version:".._VERSION.."\nstarted successfully. \n This AI is installed properly"
+		OutString="AzzyAI (hom) version "..Version.."\nMain version:"..MainVersion.."\nAzzyUtil version:"..AUVersion.."\nConstant version:"..CVersion.."\nuaRO version:"..CVersionuaRO.."\nConfig version:"..ConfigVersion.."\nCore Files: AzzyUtil="..AzzyUtilVers..", Const="..ConstVers..", Main="..MainVers.."\nConfig: "..ConfigVers.."\nTactics: "..TacticVers.." \nTime: "..os.date("%c").."\nLua Version:".._VERSION.."\nstarted successfully. \n This AI is installed properly for uaRO pre-renewal server\n\nuaRO Server Detection: SUCCESS\nRequired server files detected.\nRunning on correct uaRO server environment."
 	else
-		OutString="AzzyAI (hom) version "..Version.."\nMain version:"..MainVersion.."\nAzzyUtil version:"..AUVersion.."\nConstant version:"..CVersion.."\nConfig: "..ConfigVers.."\nTactics: "..TacticVers.." \nTime: "..os.date("%c").."\nLua Version".._VERSION.."\nError: "..ErrorCode.." "..ErrorInfo
+		OutString="AzzyAI (hom) version "..Version.."\nMain version:"..MainVersion.."\nAzzyUtil version:"..AUVersion.."\nConstant version:"..CVersion.."\nuaRO version:"..CVersionuaRO.."\nConfig version:"..ConfigVersion.."\nCore Files: AzzyUtil="..AzzyUtilVers..", Const="..ConstVers..", Main="..MainVers.."\nConfig: "..ConfigVers.."\nTactics: "..TacticVers.." \nTime: "..os.date("%c").."\nLua Version".._VERSION.."\n\nuaRO Server Detection: SUCCESS\nRequired server files detected.\nRunning on correct uaRO server environment.\n\nError: "..ErrorCode.." "..ErrorInfo
 	end
-	OutFile=io.open("AAIStartH.txt","w")
 	if OutFile == nil then
 		Error("No write permissions for RO folder, please fix permissions on the RO folder in order to use AzzyAI. Version Info: "..OutString)
 	else

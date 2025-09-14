@@ -1,139 +1,116 @@
-AggroHP                  = 60
+-----------------------------
+-- Dr. Azzy's AzzyAI v1.54
+-- Modified for uaRO-Pre-Renewal Beta v0.85 - Configuration v1.0
+-- Homunculus Configuration File
+-- uaRO server only - do not redistribute
+-----------------------------
+
+-- Basic Options
+AggroHP                  = 0
 AggroSP                  = 0
-OldHomunType             = 3
+OldHomunType             = 4
 UseSkillOnly             = -1 
 UseAttackSkill           = 1
 OpportunisticTargeting   = 0
 DoNotChase               = 0
 UseDanceAttack           = 0
 SuperPassive             = 0
+PVPmode                  = 0
 UseIdleWalk              = 0
 IdleWalkSP               = 80
+IdleWalkDistance         = 4
 UseCastleRoute           = 0
-RelativeRoute            = 1
+RelativeRoute            = 0
 UseCastleDefend          = 0
 CastleDefendThreshold    = 4
-IdleWalkDistance         = 4
+AutoDetectPlant          = 1
 FleeHP                   = 0
+DanceMinSP               = 0
+ChaseSPPause             = 0
+ChaseSPPauseSP 			= -60
+ChaseSPPauseTime         = 3000
 RescueOwnerLowHP         = 0
+AoEFixedLevel            = 1
 LiveMobID                = 0
 
+-- Attack skill options
 AttackSkillReserveSP     = 0 
 AutoMobMode              = 2 
 AutoMobCount             = 2
-AutoComboMode            = 1
-AutoComboSkill		=0
-AutoComboSpheres         = 10
-UseHomunSSkillChase      = 1
-UseHomunSSkillAttack     = 1 
-AutoSkillDelay           = 400 
+UseAutoPushback          = 0
+AutoPushbackThreshold    = 2
+AutoSkillDelay           = 0
 AoEMaximizeTargets       = 0
 CastTimeRatio		= .80
-UseEiraSilentBreeze      = 0
-EiraSilentBreezeLevel    = 5 
-UseBayeriStahlHorn       = 1
-BayeriStahlHornLevel     = 5
-UseBayeriHailegeStar     = 1
-BayeriHailegeStarLevel   = 5
-UseSeraParalyze          = 0
-SeraParalyzeLevel        = 5
-UseSeraPoisonMist        = 0 
-SeraPoisonMistLevel      = 5
-UseEleanorSonicClaw      = 1
-EleanorSonicClawLevel    = 5
-EleanorSilverveinLevel   = 5
-EleanorMidnightLevel     = 5
-UseDieterLavaSlide       = 1 
-UseDieterVolcanicAsh     = 0
-DieterLavaSlideLevel     = 10
+
+--Autobuff options
 UseDefensiveBuff         = 1
 UseOffensiveBuff         = 1 
 UseProvokeOwner          = 0
+DefensiveBuffOwnerMobbed = 0
 ProvokeOwnerMobbed       = 3
 LifEscapeLevel           = 5
 FilirFlitLevel           = 1
 FilirAccelLevel          = 1
 AmiBulwarkLevel          = 5
-UseBayeriAngriffModus    = 0
-UseBayeriGoldenPherze    = 0
-UseDieterMagmaFlow       = 0
-UseDieterGraniticArmor   = 0
-UseDieterPyroclastic     = 0
-DieterPyroclasticLevel   = 10
-UseEiraOveredBoost       = 0
+UseSmartBulwark          = 0
+
+--AutoHeal Options:
 HealSelfHP               = 50 
 HealOwnerHP              = 50 
-UseAutoHeal              = 0 
+UseAutoHeal              = 2 
+
+-- Movement and positioning
 FollowStayBack           = 2
-StationaryAggroDist      = 12
-MobileAggroDist          = 7
-StationaryMoveBounds     = 14
-MobileMoveBounds         = 9
+StationaryAggroDist      = 18
+MobileAggroDist          = 18
+StationaryMoveBounds     = 18
+MobileMoveBounds         = 18
 DoNotUseRest             = 0
 RestXOff                 = 2
 RestYOff                 = 0	
+AoEReserveSP             = 1
+
 MoveSticky               = 0
 MoveStickyFight          = 0
+
+--Kiting options:
 KiteMonsters             = 0
-KiteBounds               = 10 
+KiteBounds               = 15 
 KiteStep                 = 5
 KiteParanoidStep         = 2
 KiteThreshold            = 3
 KiteParanoidThreshold    = 2
-KiteParanoid             = 0 
-DefendStandby            = 0 
-StickyStandby            = 1 
-SpawnDelay               = 1000
-AutoSkillDelay           = 400
-StandbyFriending         = 1  
-MirAIFriending           = 1  
-UseAvoid                 = 0  
-TankMonsterLimit         = 4
-LavaSlideMode            = 1
-PoisonMistMode           = 1
-AoEReserveSP             = 1
-
-ChaseSPPause             = 0
-ChaseSPPauseSP 			= -60
-ChaseSPPauseTime         = 3000
-AttackTimeLimit          = 10000
-
-UseBayeriSteinWand       = 0
-BayeriSteinWandLevel     = 5
-UseSteinWandSelfMob      = 2
-UseSteinWandOwnerMob     = 2
-UseSteinWandTele         = 0 
-StienWandTelePause       = 3000
-AssumeHomun              = 1
-AttackLastFullSP         = 0
-DanceMinSP               = 0
-AutoSkillLimit           = 100
-UseAutoPushback          = 0
-AutoPushbackThreshold    = 2
-AoEFixedLevel            = 0
-UseSeraCallLegion        = 1
-SeraCallLegionLevel      = 5
+KiteParanoid             = 1 
 ForceKite                = 0
+
+--Standby Behavior:
+DefendStandby            = 1 
+StickyStandby            = 1 
+
+--Advanced Timing settings 
+SpawnDelay               = 0
+AttackTimeLimit          = 10000
+AutoSkillLimit           = 0
+
+--Berserk Settings:
 UseBerserkMobbed         = 0
 UseBerserkSkill          = 0
 UseBerserkAttack         = 0
 Berserk_SkillAlways      = 0
 Berserk_Dance            = 0
 Berserk_IgnoreMinSP      = 0
-Berserk_ComboAlways      = 0
-PVPmode                  = 0
-UseSeraPainkiller        = 0
-DefensiveBuffOwnerMobbed = 0
-PainkillerFriends        = 1
-PainkillerFriendsSave    = 1
-EleanorDoNotSwitchMode   = 0
-LastSavedDate            = "Default Configuration 1.56"
-UseEiraXenoSlasher       = 0
-EiraXenoSlasherLevel     = 0
-UseEiraEraseCutter       = 0
-EiraEraseCutterLevel     = 0
+
+--Misc settings:
+StandbyFriending         = 1  
+MirAIFriending           = 1  
+PickUpBraggi             = 1	-- 0 = disable, 1 = enable seeking bard buffs
+PickUpDancer             = 1	-- 0 = disable, 1 = enable seeking dancer buffs (separate from bard system)
+UseAvoid                 = 0  
+TankMonsterLimit         = 4
+AssumeHomun              = 1
+AttackLastFullSP         = 0
 LagReduction             = 0
-HealOwnerBreeze          = 0
-SteinWandTelePause       = 0
 DoNotAttackMoving        = 0
-UseSmartBulwark          = 0
+
+LastSavedDate            = "26/08/2025 18:00:48"
