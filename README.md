@@ -6,7 +6,7 @@ Enhanced uaRO AzzyAI - Pre-Renewal Optimized
 FEATURES:
 • Complete renewal code removal (faster performance)
 • Zero AI delay
-• 18-cell extended view, attach and chase range
+• 18-cell extended view, attack and chase range
 • Automatic bard/dancer buff collection
 • Enhanced friend management system
 • Updated config GUI with renewal features removed and search + filtering types, with DPI scaling and readable font
