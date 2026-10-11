@@ -27,6 +27,7 @@ pcall(function () dofile( "./AI/USER_AI/Mob_ID.lua") end)
 dofile( "./AI/USER_AI/AI_main.lua")
 dofile( "./AI/USER_AI/M_PVP_Tact.lua")
 dofile( "./AI/USER_AI/M_Extra.lua")
+dofile( "./AI/USER_AI/BlockedKite.lua")
 
 
 function WriteStartupLog(Version,ErrorCode,ErrorInfo)
@@ -67,17 +68,17 @@ if CVersion==nil then
 		CVersionuaRO="Unknown"
 		ErrorCode="File version error"
 		ErrorInfo=ErrorInfo.."Const_.lua uaRO version not found\n"
-	elseif CVersionuaRO~="Beta v0.90" then
+	elseif CVersionuaRO~="v1.0" then
 		ErrorCode="File version error"
-		ErrorInfo=ErrorInfo.."Const_.lua uaRO version mismatch: expected 'Beta v0.90', found '"..CVersionuaRO.."'\n"
+		ErrorInfo=ErrorInfo.."Const_.lua uaRO version mismatch: expected 'v1.0', found '"..CVersionuaRO.."'\n"
 	end
 	if ConfigVersion==nil then
 		ConfigVersion="Unknown"
 		ErrorCode="File version error"
 		ErrorInfo=ErrorInfo.."Const_.lua config version not found\n"
-	elseif ConfigVersion~="v1.1" then
+	elseif ConfigVersion~="v2.0" then
 		ErrorCode="File version error"
-		ErrorInfo=ErrorInfo.."Const_.lua config version mismatch: expected 'v1.1', found '"..ConfigVersion.."'\n"
+		ErrorInfo=ErrorInfo.."Const_.lua config version mismatch: expected 'v2.0', found '"..ConfigVersion.."'\n"
 	end
 	
 	-- uaRO Server Validation - This AI is specifically modified for uaRO
@@ -102,28 +103,28 @@ if CVersion==nil then
 	end
 	
 	-- Core file integrity checking for uaRO modified version
-	if fsize("./AI/USER_AI/AzzyUtil.lua")==84080 then
+	if fsize("./AI/USER_AI/AzzyUtil.lua")==85856 then
 		AzzyUtilVers="Default uaRO version"
 	else
 		AzzyUtilVers="Custom, modified from uaRO baseline"
 		ErrorCode="File integrity warning"
 		ErrorInfo=ErrorInfo.."AzzyUtil.lua has been modified from expected uaRO version\n"
 	end
-	if fsize("./AI/USER_AI/Const_.lua")==16374 then
+	if fsize("./AI/USER_AI/Const_.lua")==16391 then
 		ConstVers="Default uaRO version"
 	else
 		ConstVers="Custom, modified from uaRO baseline"
 		ErrorCode="File integrity warning"
 		ErrorInfo=ErrorInfo.."Const_.lua has been modified from expected uaRO version\n"
 	end
-	if fsize("./AI/USER_AI/AI_main.lua")==126006 then
+	if fsize("./AI/USER_AI/AI_main.lua")==131199 then
 		MainVers="Default uaRO version"
 	else
 		MainVers="Custom, modified from uaRO baseline"
 		ErrorCode="File integrity warning"
 		ErrorInfo=ErrorInfo.."AI_main.lua has been modified from expected uaRO version\n"
 	end
-	if fsize("./AI/USER_AI/M_Config.lua")==3332 then
+	if fsize("./AI/USER_AI/M_Config.lua")==3506 then
 		ConfigVers="Default: "..LastSavedDate
 	else
 		ConfigVers="Custom, edited "..LastSavedDate

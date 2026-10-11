@@ -102,7 +102,10 @@ SkillInfo[HFLI_MOON]={"Moonlight",{1,1,1,1,1},{4,8,12,16,20},{0,0,0,0,0},{0,0,0,
 SkillInfo[HFLI_FLEET]={"Flitting",{0,0,0,0,0},{30,40,50,60,70},{0,0,0,0,0},{0,0,0,0,0},{1000,1000,1000,1000,1000},0,{60000,70000,80000,90000,120000}}
 SkillInfo[HFLI_SPEED]={"Accellerated Flight",{0,0,0,0,0},{30,40,50,60,70},{0,0,0,0,0},{0,0,0,0,0},{1000,1000,1000,1000,1000},0,{60000,70000,80000,90000,120000}}
 SkillInfo[HFLI_SBR44]={"SBR 44",{1,1,1},{1,1,1},{0,0,0},{0,0,0},{0,0,0},1}
-SkillInfo[HVAN_CAPRICE]={"Caprice",{9,9,9,9,9},{22,24,26,28,30},{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0},1,{0,0,0,0,0},{220,240,260,280,300}}
+-- Caprice: field 6 is uaRO aftercast (1500ms playtested; lower hits cooldown
+-- delay). Field 9 stays 220-300ms so bard songs can recast fast. DoSkill
+-- skips field 6 while SingBuffed=1.
+SkillInfo[HVAN_CAPRICE]={"Caprice",{9,9,9,9,9},{22,24,26,28,30},{0,0,0,0,0},{0,0,0,0,0},{1500,1500,1500,1500,1500},1,{0,0,0,0,0},{220,240,260,280,300}}
 SkillInfo[HVAN_CHAOTIC]={"Chaotic Blessing",{0,0,0,0,0},{40,40,40,40,40},{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0},0,{0,0,0,0,0},{3500,3500,3500,3500,3500}}
 SkillInfo[HVAN_SELFDESTRUCT]={"Self Destruct",{0,0,0},{15,15,15},{0,0,0},{0,0,0},{0,0,0},0}
 

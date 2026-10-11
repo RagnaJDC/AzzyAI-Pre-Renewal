@@ -19,7 +19,6 @@ FriendAttack[MOTION_FULLBLAST]=1	--Uses Full Blast
 
 
 BasicDebuffs={}
-BasicDebuffs[MER_CRASH]=	1
 BasicDebuffs[MER_LEXDIVINA]=	1
 BasicDebuffs[MER_DECAGI]=	1
 BasicDebuffs[MA_SANDMAN]=	1
@@ -35,3 +34,5 @@ BasicDebuffs[MA_FREEZINGTRAP]=	1
 
 --Uncomment this line to suppress AAI_ERROR logging. This should only be done as a stop-gap measure; if your AAI_ERROR log is filling up with messages, please report this to the developer. 
 --LogEnable["AAI_ERROR"]=0
+
+-- Failed-move blocked-cell kite: UseBlockedKite in M_Config.lua. Set 0 for old picker.

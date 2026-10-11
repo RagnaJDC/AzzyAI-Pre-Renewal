@@ -1,6 +1,6 @@
 -----------------------------
 -- Dr. Azzy's AzzyAI v1.54
--- Modified for uaRO-Pre-Renewal Beta v0.90 - Configuration v1.0
+-- Modified for uaRO-Pre-Renewal v1.0 - Configuration v2.0
 -- Homunculus Configuration File
 -- uaRO server only - do not redistribute
 -----------------------------
@@ -16,7 +16,8 @@ OpportunisticTargeting   = 0
 DoNotChase               = 0
 UseDanceAttack           = 0
 SuperPassive             = 0
-PVPmode                  = 0
+PVPmode                  = 1
+PVPAutoAllyOnGiveUp      = 1 -- 1 = add unhittable PvP players as ALLY after give-up
 UseIdleWalk              = 0
 IdleWalkSP               = 80
 IdleWalkDistance         = 4
@@ -83,6 +84,7 @@ KiteThreshold            = 3
 KiteParanoidThreshold    = 2
 KiteParanoid             = 1 
 ForceKite                = 0
+UseBlockedKite           = 0 -- 1 = learn walls from failed kite Moves; 0 = old DoKiteAdjust
 
 --Standby Behavior:
 DefendStandby            = 1 

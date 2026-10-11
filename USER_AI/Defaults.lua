@@ -1,6 +1,6 @@
 -----------------------------
 -- Dr. Azzy's AzzyAI v1.54
--- Modified for uaRO-Pre-Renewal Beta v0.90 - Configuration v1.1
+-- Modified for uaRO-Pre-Renewal v1.0 - Configuration v2.0
 -- uaRO server only - do not redistribute
 -----------------------------
 --DO NOT MODIFY THIS FILE--
@@ -30,6 +30,7 @@ DoNotChase				=0
 UseDanceAttack			=0
 SuperPassive			=0
 PVPMode					=0
+PVPAutoAllyOnGiveUp		=1 -- 1 = in PvP, add unhittable players as ALLY after give-up
 AttackLastHPSP			=80
 UseIdleWalk				=0
 IdleWalkDistance		=3
@@ -105,6 +106,7 @@ KiteParanoidStep         = 2
 KiteThreshold            = 3
 KiteParanoidThreshold    = 2
 KiteParanoid             = 0 
+UseBlockedKite           = 1 
 
 --Standby Behavior:
 DefendStandby            = 0 
@@ -173,14 +175,13 @@ FriendAttack[MOTION_TOSS]=0	--Uses SpearBoom/AidPot/other "throwing" things
 FriendAttack[MOTION_BIGTOSS]=1	--Uses Acid Bomb
 FriendAttack[MOTION_FULLBLAST]=1	--Uses Full Blast
 
-AtkSkillList={MA_DOUBLE,MA_SHARPSHOOTING,ML_PIERCE,ML_SPIRALPIERCE,MS_BASH}
+AtkSkillList={MER_CRASH,MA_DOUBLE,MA_SHARPSHOOTING,ML_PIERCE,ML_SPIRALPIERCE,MS_BASH}
 MobSkillList={MA_SHOWER,MA_SHARPSHOOTING,ML_BRANDISH,MS_MAGNUM,MS_BOWLINGBASH}
 GuardSkillList={ML_AUTOGUARD,MS_PARRYING,MS_REFLECTSHIELD} --,MS_DEFENDER}
 PushSkillList={MA_CHARGEARROW,MA_SKIDTRAP}
-DebuffSkillList={MER_CRASH,MER_PROVOKE,MER_DECAGI,MA_SANDMAN,MA_FREEZINGTRAP,MER_LEXDIVINA}
+DebuffSkillList={MER_PROVOKE,MER_DECAGI,MA_SANDMAN,MA_FREEZINGTRAP,MER_LEXDIVINA}
 
 BasicDebuffs={}
-BasicDebuffs[MER_CRASH]=	1
 BasicDebuffs[MER_LEXDIVINA]=	1
 BasicDebuffs[MER_DECAGI]=	1
 BasicDebuffs[MA_SANDMAN]=	1

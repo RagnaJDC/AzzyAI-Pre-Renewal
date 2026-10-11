@@ -491,7 +491,7 @@
             label1.Name = "label1";
             label1.Size = new System.Drawing.Size(162, 13);
             label1.TabIndex = 1;
-            label1.Text = "AzzyAI Configuration Utility v1.55";
+            label1.Text = "AzzyAI Configuration Utility v1.0";
             label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // buttonApply

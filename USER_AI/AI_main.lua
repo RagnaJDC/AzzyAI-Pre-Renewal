@@ -1,6 +1,6 @@
 -----------------------------
 -- Dr. Azzy's AzzyAI v1.54
--- Modified for uaRO-Pre-Renewal Beta v0.90
+-- Modified for uaRO-Pre-Renewal v1.0
 -- Written by Dr. Azzy of iRO Chaos
 -- Permission granted to distribute in unmodified form.
 -- You may expand the AI freely through the M_Extra and H_Extra files
@@ -580,40 +580,74 @@ function	OnIDLE_ST ()
 	end
 end
 
-function	OnFOLLOW_ST ()
-	TraceAI ("OnFOLLOW_ST - follow try count: "..FollowTryCount.." ownerpos: "..formatpos(GetV(V_POSITION,GetV(V_OWNER,MyID))).."my pos history:"..formatmypos(10))
-	-- Skill attack check: Try to use skill on enemy in range while following (do not change state)
-	if UseSkillOnFollow == 1 and UseAttackSkill == 1 and UseSkillOnly ~= 0 and (GetTick() >= AutoSkillTimeout) then
-		local SkillList = GetTargetedSkills(MyID)
-		local availsp = GetV(V_SP,MyID)
-		local enemies = GetEnemyList(MyID, 1)
-		-- Focused targeting: select one enemy and attack until dead/out of range
+-- Run-and-gun: fire MAIN_ATK (Caprice/DS) without changing state or stopping Move.
+-- force=1: kite path, always try when the timeout is ready (ignore UseSkillOnFollow).
+function TrySkillWhileMoving(force)
+	if UseAttackSkill ~= 1 or UseSkillOnly == 0 then
+		return
+	end
+	if force ~= 1 and UseSkillOnFollow ~= 1 then
+		return
+	end
+	if GetTick() < AutoSkillTimeout then
+		return
+	end
+	local object = 0
+	if force==1 and GetKiteRescueTarget~=nil then
+		local rescue=GetKiteRescueTarget(MyID)
+		if rescue~=0 then
+			local SkillList=GetTargetedSkills(MyID)
+			local i,v
+			for i,v in ipairs(SkillList) do
+				if v[2]~=0 and v[1]==MAIN_ATK and IsInAttackSight(MyID,rescue,v[2],v[3])==true then
+					object=rescue
+					TraceAI("Kite rescue: peel owner-attacker "..rescue)
+					break
+				end
+			end
+			if object==0 then
+				TraceAI("Kite rescue: no sight on "..rescue..", hit current attacker")
+			end
+		end
+	end
+	if object==0 then
 		local aggro = 1
 		if HPPercent(MyID) <= AggroHP or SPPercent(MyID) <= AggroSP then
 			aggro = 0
 		end
-		local object = SelectEnemy(GetEnemyList(MyID, aggro))
-		if object ~= 0 then
-			MyEnemy = object
-			local tact_skill = GetTact(TACT_SKILL, MyEnemy)
-			local skill_level = tact_skill < 0 and -tact_skill or 11
-			local SkillList = GetTargetedSkills(MyID)
-			local availsp = GetV(V_SP,MyID)
-			for i, v in ipairs(SkillList) do
-				local skilltype = v[1]
-				if v[2] ~= 0 and skilltype == MAIN_ATK and IsInAttackSight(MyID, MyEnemy, v[2], v[3]) == true then
-					if (availsp - ReserveSP >= GetSkillInfo(v[2],3,math.min(v[3],skill_level))) then
-						TraceAI("Using MAIN_ATK skill while following on focused enemy:"..MyEnemy.." skill:"..v[2])
-						local slvl = v[3]
-						if skill_level ~= 11 then
-							slvl = skill_level
-						end
-						DoSkill(v[2], slvl, MyEnemy)
-					end
+		object = SelectEnemy(GetEnemyList(MyID, aggro))
+	end
+	if object == 0 then
+		object = MyEnemy
+	end
+	if object == nil or object == 0 then
+		return
+	end
+	MyEnemy = object
+	local tact_skill = GetTact(TACT_SKILL, MyEnemy)
+	local skill_level = tact_skill < 0 and -tact_skill or 11
+	local SkillList = GetTargetedSkills(MyID)
+	local availsp = GetV(V_SP,MyID)
+	local i,v
+	for i, v in ipairs(SkillList) do
+		local skilltype = v[1]
+		if v[2] ~= 0 and skilltype == MAIN_ATK and IsInAttackSight(MyID, MyEnemy, v[2], v[3]) == true then
+			if (availsp - ReserveSP >= GetSkillInfo(v[2],3,math.min(v[3],skill_level))) then
+				TraceAI("Using MAIN_ATK skill while moving on "..MyEnemy.." skill:"..v[2])
+				local slvl = v[3]
+				if skill_level ~= 11 then
+					slvl = skill_level
 				end
+				DoSkill(v[2], slvl, MyEnemy)
+				return
 			end
 		end
 	end
+end
+
+function	OnFOLLOW_ST ()
+	TraceAI ("OnFOLLOW_ST - follow try count: "..FollowTryCount.." ownerpos: "..formatpos(GetV(V_POSITION,GetV(V_OWNER,MyID))).."my pos history:"..formatmypos(10))
+	TrySkillWhileMoving()
 	local dist = GetDistanceFromOwner(MyID)
 	if dist > GetMoveBounds() then 
 		ReturnToMoveHold = 0
@@ -768,7 +802,7 @@ function	OnCHASE_ST ()
 	end
 	if GetV(V_MOTION,MyID)~=MOTION_MOVE then
 		if ChaseGiveUpCount > ChaseGiveUp then
-			Unreachable[MyEnemy]=1
+			GiveUpTarget(MyEnemy)
 			if SelectEnemy(GetEnemyList(MyID,-2)) == MyEnemy then --Oh crap, 
 				TraceAI("CHASE_ST -> FOLLOW_ST : Target "..MyEnemy.." marked unreachable but is also rescue target! Trying follow state in hopes of a clean line of attack from owner")
 				MyState = FOLLOW_ST
@@ -947,7 +981,7 @@ function	OnCHASE_ST ()
 			if x==-1 or y==-1 then
 				if AttackRange(MyID,MySkill,MySkillLevel) < 2 or alt > 0 then 
 					MyState = IDLE_ST
-					Unreachable[MyEnemy]=1
+					GiveUpTarget(MyEnemy)
 					MyEnemy = 0
 					EnemyPosX = {0,0,0,0,0,0,0,0,0,0}
 					EnemyPosY = {0,0,0,0,0,0,0,0,0,0}
@@ -962,7 +996,7 @@ function	OnCHASE_ST ()
 					x,y = GetStandPoint(MyID,MyEnemy,MySkill,MySkillLevel,1)
 					if x==-1 or y==-1 then
 						MyState = IDLE_ST
-						Unreachable[MyEnemy]=1
+						GiveUpTarget(MyEnemy)
 						MyEnemy = 0
 						EnemyPosX = {0,0,0,0,0,0,0,0,0,0}
 						EnemyPosY = {0,0,0,0,0,0,0,0,0,0}
@@ -1043,7 +1077,7 @@ function OnATTACK_ST ()
 				TraceAI("ATTACK_ST: We've been attacking for 3 cycles, but we still haven't attacked! Something is wrong - Moving to adjust opposite")
 			elseif AttackGiveUpCount > AttackGiveUp and MyEnemies[AttackGiveUp]==MyEnemy and MyStates[AttackGiveUp]==ATTACK_ST then
 				MyState = IDLE_ST
-				Unreachable[MyEnemy]=1
+				GiveUpTarget(MyEnemy)
 				MyEnemy = 0
 				EnemyPosX = {0,0,0,0,0,0,0,0,0,0}
 				EnemyPosY = {0,0,0,0,0,0,0,0,0,0}
@@ -1071,7 +1105,7 @@ function OnATTACK_ST ()
 	end
 	if (AttackTimeout < GetTick() and AttackTimeLimit > 0) then -- Attack time limit reached.
 		MyState = FOLLOW_ST
-		Unreachable[MyEnemy]=1
+		GiveUpTarget(MyEnemy)
 		MyEnemy = 0
 		EnemyPosX = {0,0,0,0,0,0,0,0,0,0}
 		EnemyPosY = {0,0,0,0,0,0,0,0,0,0}
@@ -1322,7 +1356,7 @@ function	OnTANKCHASE_ST ()
 	TraceAI ("OnTANKCHASE_ST")
 	if (true == IsOutOfSight(MyID,MyEnemy) or (ChaseGiveUpCount > ChaseGiveUp and GetV(V_MOTION,MyID)~=MOTION_MOVE)) then	-- ENEMY_OUTSIGHT_IN
 		if (ChaseGiveUpCount>ChaseGiveUp) then
-			Unreachable[MyEnemy]=1
+			GiveUpTarget(MyEnemy)
 		end
 		
 		MyState = IDLE_ST
@@ -1409,7 +1443,7 @@ function	OnTANKCHASE_ST ()
 	ChaseGiveUpCount=ChaseGiveUpCount+1
 	MyDestX, MyDestY =  GetStandPoint(MyID,MyEnemy,MySkill,MySkillLevel,alt)
 	if MyDestX==-1 or MyDestY==1 then
-		Unreachable[MyEnemy]=1
+		GiveUpTarget(MyEnemy)
 		MyState = IDLE_ST
 		MyEnemy = 0
 		EnemyPosX = {0,0,0,0,0,0,0,0,0,0}
@@ -3372,8 +3406,8 @@ function AI(myid)
 			AAIActors[v]=1
 		end
 		local x,y = GetV(V_POSITION,v)
-		if GetV(V_HOMUNTYPE,v)==1102 and x==174 and 33==y and GetV(V_MOTION,v)==MOTION_STAND then
-			-- This is the eden group bathory, ignore it. 
+		if IsIgnoredNPC(v,x,y)==1 then
+			-- Monster-sprite NPC (Eden Bathory, uaRO prt_in 174,136, ...)
 		else	
 			if (false == IsOutOfSight(myid,v)) then
 				Actors[v]=1
@@ -3800,6 +3834,18 @@ function AI(myid)
 	-- This provides fallback buff options while maintaining bard priority
 	if (CheckForDanceBuff() == true) then
 		return  -- Skip all normal state processing when actively seeking dancers
+	end
+
+	-- Kite Move already issued this tick. CHASE/ATTACK standpoint would walk
+	-- back onto the mob and cancel it (same preemption idea as buff-seek).
+	if KitedThisTick==1 then
+		TraceAI("BlockedKite: skip state machine, walking kite dest")
+		if TryKiteRescueApproach~=nil then
+			TryKiteRescueApproach(MyID)
+		end
+		TrySkillWhileMoving(1)
+		OnAIEnd()
+		return
 	end
 	
  	if (MyState == IDLE_ST) then

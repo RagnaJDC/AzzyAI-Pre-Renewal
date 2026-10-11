@@ -62,8 +62,12 @@ namespace AzzyAIConfig
             { _KiteBounds = Convert.ToInt32(Regex.Match(file, "KiteBounds\\s*=\\s*(\\d+|-\\d+)", RegexOptions.Multiline).Value.Split('=')[1].Trim()); }
             if (Regex.IsMatch(file, "ForceKite\\s*=\\s*(\\d+|-\\d+)", RegexOptions.Multiline))
             { _ForceKite = Convert.ToInt32(Regex.Match(file, "ForceKite\\s*=\\s*(\\d+|-\\d+)", RegexOptions.Multiline).Value.Split('=')[1].Trim()); }
+            if (Regex.IsMatch(file, "UseBlockedKite\\s*=\\s*(\\d+|-\\d+)", RegexOptions.Multiline))
+            { _UseBlockedKite = Convert.ToInt32(Regex.Match(file, "UseBlockedKite\\s*=\\s*(\\d+|-\\d+)", RegexOptions.Multiline).Value.Split('=')[1].Trim()); }
             if (Regex.IsMatch(file, "PVPmode\\s*=\\s*(\\d+|-\\d+)", RegexOptions.Multiline))
             { _PVPmode = Convert.ToInt32(Regex.Match(file, "PVPmode\\s*=\\s*(\\d+|-\\d+)", RegexOptions.Multiline).Value.Split('=')[1].Trim()); }
+            if (Regex.IsMatch(file, "PVPAutoAllyOnGiveUp\\s*=\\s*(\\d+|-\\d+)", RegexOptions.Multiline))
+            { _PVPAutoAllyOnGiveUp = Convert.ToInt32(Regex.Match(file, "PVPAutoAllyOnGiveUp\\s*=\\s*(\\d+|-\\d+)", RegexOptions.Multiline).Value.Split('=')[1].Trim()); }
             if (Regex.IsMatch(file, "DoNotChase\\s*=\\s*(\\d+|-\\d+)", RegexOptions.Multiline))
             { _DoNotChase = Convert.ToInt32(Regex.Match(file, "DoNotChase\\s*=\\s*(\\d+|-\\d+)", RegexOptions.Multiline).Value.Split('=')[1].Trim()); }
             if (Regex.IsMatch(file, "KSMercHomun\\s*=\\s*(\\d+|-\\d+)", RegexOptions.Multiline))
@@ -272,11 +276,23 @@ namespace AzzyAIConfig
             get { return _ForceKite; }
             set { _ForceKite = value; }
         }
+        static int _UseBlockedKite = 1;
+        public static int UseBlockedKite
+        {
+            get { return _UseBlockedKite; }
+            set { _UseBlockedKite = value; }
+        }
         static int _PVPmode = 0;
         public static int PVPmode
         {
             get { return _PVPmode; }
             set { _PVPmode = value; }
+        }
+        static int _PVPAutoAllyOnGiveUp = 1;
+        public static int PVPAutoAllyOnGiveUp
+        {
+            get { return _PVPAutoAllyOnGiveUp; }
+            set { _PVPAutoAllyOnGiveUp = value; }
         }
         static int _DoNotChase = 0;
         public static int DoNotChase
@@ -314,7 +330,7 @@ namespace AzzyAIConfig
             get { return _UseSkillOnly; }
             set { _UseSkillOnly = value; }
         }
-        static int _UseSkillOnFollow = 0;
+        static int _UseSkillOnFollow = 1;
         public static int UseSkillOnFollow
         {
             get { return _UseSkillOnFollow; }

@@ -143,6 +143,7 @@ namespace AzzyAIConfig
             _KiteParanoidThreshold = Convert.ToInt32(((DefaultValueAttribute)TypeDescriptor.GetProperties(this)["KiteParanoidThreshold"].Attributes[typeof(DefaultValueAttribute)]).Value);
             _KiteBounds = Convert.ToInt32(((DefaultValueAttribute)TypeDescriptor.GetProperties(this)["KiteBounds"].Attributes[typeof(DefaultValueAttribute)]).Value);
             _ForceKite = Convert.ToBoolean(((DefaultValueAttribute)TypeDescriptor.GetProperties(this)["ForceKite"].Attributes[typeof(DefaultValueAttribute)]).Value);
+            _UseBlockedKite = Convert.ToBoolean(((DefaultValueAttribute)TypeDescriptor.GetProperties(this)["UseBlockedKite"].Attributes[typeof(DefaultValueAttribute)]).Value);
             _FleeHP = Convert.ToInt32(((DefaultValueAttribute)TypeDescriptor.GetProperties(this)["FleeHP"].Attributes[typeof(DefaultValueAttribute)]).Value);
             
             // Friending Options
@@ -163,6 +164,7 @@ namespace AzzyAIConfig
 
             // PVP Options
             _PVPmode = Convert.ToBoolean(((DefaultValueAttribute)TypeDescriptor.GetProperties(this)["PVPmode"].Attributes[typeof(DefaultValueAttribute)]).Value);
+            _PVPAutoAllyOnGiveUp = Convert.ToBoolean(((DefaultValueAttribute)TypeDescriptor.GetProperties(this)["PVPAutoAllyOnGiveUp"].Attributes[typeof(DefaultValueAttribute)]).Value);
         }
 
         public void Save()
@@ -263,6 +265,7 @@ namespace AzzyAIConfig
             M_Config.KiteParanoidThreshold = _KiteParanoidThreshold;
             M_Config.KiteBounds = _KiteBounds;
             M_Config.ForceKite = Convert.ToInt32(_ForceKite);
+            M_Config.UseBlockedKite = Convert.ToInt32(_UseBlockedKite);
             M_Config.FleeHP = _FleeHP;
 
             // Friending Options
@@ -283,6 +286,7 @@ namespace AzzyAIConfig
 
             // PVP Options
             M_Config.PVPmode = Convert.ToInt32(_PVPmode);
+            M_Config.PVPAutoAllyOnGiveUp = Convert.ToInt32(_PVPAutoAllyOnGiveUp);
 
             M_Config.Save(file);
         }
@@ -383,6 +387,7 @@ namespace AzzyAIConfig
             _KiteParanoidThreshold = M_Config.KiteParanoidThreshold;
             _KiteBounds = M_Config.KiteBounds;
             _ForceKite = Convert.ToBoolean(M_Config.ForceKite);
+            _UseBlockedKite = Convert.ToBoolean(M_Config.UseBlockedKite);
             _FleeHP = M_Config.FleeHP;
 
             // Friending Options
@@ -403,6 +408,7 @@ namespace AzzyAIConfig
 
             // PVP Options
             _PVPmode = Convert.ToBoolean(M_Config.PVPmode);
+            _PVPAutoAllyOnGiveUp = Convert.ToBoolean(M_Config.PVPAutoAllyOnGiveUp);
         }
 
         #region Basic Options
@@ -877,14 +883,14 @@ namespace AzzyAIConfig
             set { _UseSkillOnly = value; }
         }
 
-        bool _UseSkillOnFollow = false;
+        bool _UseSkillOnFollow = true;
         [Category("AutoSkill Options"),
         Description(
             "Set this to true if you want your mercenary to use skills " +
             "while following (not attacking). This allows skills to be used " +
             "while the mercenary is moving to follow you."
             ),
-        DefaultValue(false)]
+        DefaultValue(true)]
         public bool UseSkillOnFollow
         {
             get { return _UseSkillOnFollow; }
@@ -1765,6 +1771,19 @@ namespace AzzyAIConfig
             get { return _ForceKite; }
             set { _ForceKite = value; }
         }
+        bool _UseBlockedKite = true;
+        [Category("Kiting Options"),
+        Description(
+            "When kiting, learn walls from failed Moves and pick another cell " +
+            "instead of walking the same vector into a corner. Turn off to use " +
+            "the original DoKiteAdjust picker."
+            ),
+        DefaultValue(true)]
+        public bool UseBlockedKite
+        {
+            get { return _UseBlockedKite; }
+            set { _UseBlockedKite = value; }
+        }
         int _FleeHP = 0;
         [Category("Kiting Options"),
         Description("If non-zero and kiting is enabled, only kite below this percent HP"),
@@ -1946,6 +1965,20 @@ namespace AzzyAIConfig
         {
             get { return _PVPmode; }
             set { _PVPmode = value; }
+        }
+        bool _PVPAutoAllyOnGiveUp = true;
+        [Category("PVP Options"),
+        Description(
+            "When PvP mode is on, if the mercenary gives up on a player it " +
+            "cannot acquire (late WOE/BG joiner, teammate the client will not " +
+            "lock), add that player as ALLY so class tactics stop sending us " +
+            "back at them. Does not overwrite FRIEND, KOS, or ENEMY."
+            ),
+        DefaultValue(true)]
+        public bool PVPAutoAllyOnGiveUp
+        {
+            get { return _PVPAutoAllyOnGiveUp; }
+            set { _PVPAutoAllyOnGiveUp = value; }
         }
         #endregion
     }

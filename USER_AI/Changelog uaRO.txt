@@ -1,4 +1,55 @@
-0.96 Dev
+1.0
+⦁	Release 1.0: version locks, config v2.0, new AzzyAiConfigPreRe.exe
+    CVersionuaRO is v1.0 and ConfigVersion is v2.0. Rebuild the GUI so Save
+    writes UseBlockedKite and PVPAutoAllyOnGiveUp. File-size integrity matches
+    the shipped Lua.
+
+⦁	DoNotChase now applies to PvP players
+    GetTact used to return the raw PvP chase field and skip the monster remap.
+    CHASE_NORMAL is -1, so the pet walked at every PvP target even with
+    DoNotChase=1. PvP chase now uses the same rule: ALWAYS chases, NEVER does
+    not, NORMAL follows DoNotChase. CHASE_ALWAYS on a class row still closes.
+
+⦁	Crash is an attack skill, not a debuff
+    MER_CRASH was on DebuffSkillList / BasicDebuffs, so sword and lancer
+    mercenaries treated it like Provoke instead of their main hit. It is now
+    first on AtkSkillList. Extra files no longer put it back as a debuff.
+
+⦁	Blocked-cell kite (UseBlockedKite)
+    New kite picker: failed Moves mark that cell blocked (~650 ms), then the next
+    dest is scored on an 8-direction ring that skips blocked/occupied cells, stays
+    in Caprice/DS range and KiteBounds, and steps sideways if the ring is empty.
+    While kiting it holds that range and casts on the walk — no walk-back onto the
+    mob, no skill cancel of the kite dest. Owner's attacker is peeled if it is in
+    skill sight; otherwise the pet's mob is hit and we kite toward the owner.
+    Still needs KiteMonsters=1. Toggle is under Kiting Options in AzzyAiConfigPreRe.exe.
+
+⦁	Ignore uaRO prt_in monster-model NPC at 174,136
+    Same skip Azzy already used for the Eden Bathory at 174,33. The inn NPC uses
+    a monster sprite, so IsMonster() made the pet chase it and get stuck. Standing
+    actors on that cell are left out of the actor/target lists.
+
+⦁	Caprice aftercast is 1500ms on uaRO unless a bard song is up
+    Playtested floor: 1500 ms is accepted, anything lower spams cooldown delay.
+    Reuse (field 9) stays 220–300 ms so Bragi/song-removed ACD can still recast
+    fast. DoSkill skips field 6 while SingBuffed=1; without a song it waits 1500.
+
+⦁	Fixed PvP friend/ally tactics being ignored in favour of class tactics
+    GetPVPTact used to look up job class (Knight, Wizard, etc.) before the friend-list
+    role. A teammate on FRIEND or ALLY still inherited the class attack row, so the
+    homunculus/mercenary would chase guild and party members you had already friended.
+    Lookup order is now actor ID, then friend-list role (FRIEND/ALLY/KOS/ENEMY), then
+    job class, then default. Class rows apply only to players not on the friend list.
+    Mercenaries now also read job class via GetV(V_HOMUNTYPE); they previously skipped
+    class rows entirely. IsFriendOrSelf no longer treats KOS or ENEMY as teammates.
+
+⦁	PvP auto-ally after give-up (PVPAutoAllyOnGiveUp, default on)
+    When PVPmode=1 and the homunculus/mercenary gives up on a player it cannot acquire
+    (chase give-up, attack lock fail, standpoint fail, attack timeout), that player is
+    written to A_Friends.lua as ALLY. Class tactics then stop sending us back at late
+    WOE/BG joiners the client will not lock. FRIEND, ALLY, RETAINER, PKFRIEND, KOS,
+    and ENEMY are not overwritten. Toggle lives under PVP Options in AzzyAiConfigPreRe.exe.
+
 ⦁	Fixed idle walk system AggroHP dependency issue in PvP mode
     Resolved issue where idle walk would be disabled when HP dropped below AggroHP threshold, even in PvP mode where continuous movement is crucial.
     Added GetEffectiveAggroHP() helper function that overrides AggroHP to 0 for idle walk checks when PVPmode=1 is enabled.

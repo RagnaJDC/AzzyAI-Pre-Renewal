@@ -9,6 +9,7 @@ DoNotChase				=0
 UseDanceAttack			=0
 SuperPassive			=0
 PVPMode					=0
+PVPAutoAllyOnGiveUp		=1
 AttackLastHPSP			=80
 UseIdleWalk				=1
 IdleWalkDistance		=3
@@ -63,6 +64,7 @@ KiteParanoidStep         = 2
 KiteThreshold            = 3
 KiteParanoidThreshold    = 2
 KiteParanoid             = 0 
+UseBlockedKite           = 1 
 
 --Standby Behavior:
 DefendStandby            = 0 

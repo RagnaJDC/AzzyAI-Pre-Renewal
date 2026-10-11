@@ -523,6 +523,10 @@ namespace AzzyAIConfig
             if (Regex.IsMatch(file, "ForceKite\\s*=\\s*-?\\d+", RegexOptions.Multiline))
             {
                 ForceKite = Convert.ToInt32(Regex.Match(file, "ForceKite\\s*=\\s*-?\\d+", RegexOptions.Multiline).Value.Split('=')[1].Trim());
+            }
+            if (Regex.IsMatch(file, "UseBlockedKite\\s*=\\s*-?\\d+", RegexOptions.Multiline))
+            {
+                UseBlockedKite = Convert.ToInt32(Regex.Match(file, "UseBlockedKite\\s*=\\s*-?\\d+", RegexOptions.Multiline).Value.Split('=')[1].Trim());
             } 
             if (Regex.IsMatch(file, "FleeHP\\s*=\\s*-?\\d+", RegexOptions.Multiline))
             {
@@ -607,6 +611,10 @@ namespace AzzyAIConfig
             if (Regex.IsMatch(file, "PVPmode\\s*=\\s*-?\\d+", RegexOptions.Multiline))
             {
                 PVPmode = Convert.ToInt32(Regex.Match(file, "PVPmode\\s*=\\s*-?\\d+", RegexOptions.Multiline).Value.Split('=')[1].Trim());
+            }
+            if (Regex.IsMatch(file, "PVPAutoAllyOnGiveUp\\s*=\\s*-?\\d+", RegexOptions.Multiline))
+            {
+                PVPAutoAllyOnGiveUp = Convert.ToInt32(Regex.Match(file, "PVPAutoAllyOnGiveUp\\s*=\\s*-?\\d+", RegexOptions.Multiline).Value.Split('=')[1].Trim());
             }
         }
         #endregion
@@ -1037,7 +1045,7 @@ namespace AzzyAIConfig
             }
             if (Regex.IsMatch(file, "IdleWalkSP\\s*=\\s*(\\d+|-\\d+)", RegexOptions.Multiline))
             {
-                file = Regex.Replace(file, "(IdleWalkSP\\s*=\\s*)(\\d+|-\\+)", string.Format("{0,-25}= {1}", "IdleWalkSP", IdleWalkSP), RegexOptions.Multiline);
+                file = Regex.Replace(file, "(IdleWalkSP\\s*=\\s*)(\\d+|-\\d+)", string.Format("{0,-25}= {1}", "IdleWalkSP", IdleWalkSP), RegexOptions.Multiline);
             }
             else
             {
@@ -1291,6 +1299,14 @@ namespace AzzyAIConfig
             {
                 file = string.Format("{1}{0}{2,-25}= {3}", Environment.NewLine, file, "ForceKite", ForceKite);
             }
+            if (Regex.IsMatch(file, "UseBlockedKite\\s*=\\s*(\\d+|-\\d+)", RegexOptions.Multiline))
+            {
+                file = Regex.Replace(file, "(UseBlockedKite\\s*=\\s*)(\\d+|-\\d+)", string.Format("{0,-25}= {1}", "UseBlockedKite", UseBlockedKite), RegexOptions.Multiline);
+            }
+            else
+            {
+                file = string.Format("{1}{0}{2,-25}= {3}", Environment.NewLine, file, "UseBlockedKite", UseBlockedKite);
+            }
             if (Regex.IsMatch(file, "FleeHP\\s*=\\s*(\\d+|-\\d+)", RegexOptions.Multiline))
             {
                 file = Regex.Replace(file, "(FleeHP\\s*=\\s*)(\\d+|-\\d+)", string.Format("{0,-25}= {1}", "FleeHP", FleeHP), RegexOptions.Multiline);
@@ -1432,6 +1448,14 @@ namespace AzzyAIConfig
             else
             {
                 file = string.Format("{1}{0}{2,-25}= {3}", Environment.NewLine, file, "PVPmode", PVPmode);
+            }
+            if (Regex.IsMatch(file, "PVPAutoAllyOnGiveUp\\s*=\\s*(\\d+|-\\d+)", RegexOptions.Multiline))
+            {
+                file = Regex.Replace(file, "(PVPAutoAllyOnGiveUp\\s*=\\s*)(\\d+|-\\d+)", string.Format("{0,-25}= {1}", "PVPAutoAllyOnGiveUp", PVPAutoAllyOnGiveUp), RegexOptions.Multiline);
+            }
+            else
+            {
+                file = string.Format("{1}{0}{2,-25}= {3}", Environment.NewLine, file, "PVPAutoAllyOnGiveUp", PVPAutoAllyOnGiveUp);
             }
 
             // Return the new file contents
@@ -1711,7 +1735,7 @@ namespace AzzyAIConfig
             get { return _AoEMaximizeTargets; }
             set { _AoEMaximizeTargets = value; }
         }
-        static int _UseSkillOnFollow = 0;
+        static int _UseSkillOnFollow = 1;
         public static int UseSkillOnFollow // Set to 1 to use skills while following (not attacking)
         {
             get { return _UseSkillOnFollow; }
@@ -2230,6 +2254,12 @@ namespace AzzyAIConfig
             get { return _ForceKite; }
             set { _ForceKite = value; }
         }
+        static int _UseBlockedKite = 1;
+        public static int UseBlockedKite
+        {
+            get { return _UseBlockedKite; }
+            set { _UseBlockedKite = value; }
+        }
         static int _FleeHP = 8;
         public static int FleeHP
         {
@@ -2332,6 +2362,12 @@ namespace AzzyAIConfig
         {
             get { return _PVPmode; }
             set { _PVPmode = value; }
+        }
+        static int _PVPAutoAllyOnGiveUp = 1;
+        public static int PVPAutoAllyOnGiveUp // Set to 1 to add unhittable PvP players as ALLY after give-up
+        {
+            get { return _PVPAutoAllyOnGiveUp; }
+            set { _PVPAutoAllyOnGiveUp = value; }
         }
         #endregion
     }

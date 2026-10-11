@@ -431,6 +431,7 @@ namespace AzzyAIConfig
             _KiteParanoidThreshold = Convert.ToInt32(((DefaultValueAttribute)TypeDescriptor.GetProperties(this)["KiteParanoidThreshold"].Attributes[typeof(DefaultValueAttribute)]).Value);
             _KiteBounds = Convert.ToInt32(((DefaultValueAttribute)TypeDescriptor.GetProperties(this)["KiteBounds"].Attributes[typeof(DefaultValueAttribute)]).Value);
             _ForceKite = Convert.ToBoolean(((DefaultValueAttribute)TypeDescriptor.GetProperties(this)["ForceKite"].Attributes[typeof(DefaultValueAttribute)]).Value);
+            _UseBlockedKite = Convert.ToBoolean(((DefaultValueAttribute)TypeDescriptor.GetProperties(this)["UseBlockedKite"].Attributes[typeof(DefaultValueAttribute)]).Value);
             _FleeHP = Convert.ToInt32(((DefaultValueAttribute)TypeDescriptor.GetProperties(this)["FleeHP"].Attributes[typeof(DefaultValueAttribute)]).Value);
             
             // Friending Options
@@ -451,6 +452,7 @@ namespace AzzyAIConfig
 
             // PVP Options
             _PVPmode = Convert.ToBoolean(((DefaultValueAttribute)TypeDescriptor.GetProperties(this)["PVPmode"].Attributes[typeof(DefaultValueAttribute)]).Value);
+            _PVPAutoAllyOnGiveUp = Convert.ToBoolean(((DefaultValueAttribute)TypeDescriptor.GetProperties(this)["PVPAutoAllyOnGiveUp"].Attributes[typeof(DefaultValueAttribute)]).Value);
         }
 
         public void Save()
@@ -586,6 +588,7 @@ namespace AzzyAIConfig
             H_Config.KiteParanoidThreshold = _KiteParanoidThreshold;
             H_Config.KiteBounds = _KiteBounds;
             H_Config.ForceKite = Convert.ToInt32(_ForceKite);
+            H_Config.UseBlockedKite = Convert.ToInt32(_UseBlockedKite);
             H_Config.FleeHP = _FleeHP;
 
             // Friending Options
@@ -606,6 +609,7 @@ namespace AzzyAIConfig
             H_Config.Berserk_ComboAlways = Convert.ToInt32(_Berserk_ComboAlways);
             // PVP Options
             H_Config.PVPmode = Convert.ToInt32(_PVPmode);
+            H_Config.PVPAutoAllyOnGiveUp = Convert.ToInt32(_PVPAutoAllyOnGiveUp);
 
             // Save the file
             H_Config.Save(file);
@@ -753,6 +757,7 @@ namespace AzzyAIConfig
             _KiteParanoidThreshold = H_Config.KiteParanoidThreshold;
             _KiteBounds = H_Config.KiteBounds;
             _ForceKite = Convert.ToBoolean(H_Config.ForceKite);
+            _UseBlockedKite = Convert.ToBoolean(H_Config.UseBlockedKite);
             _FleeHP = H_Config.FleeHP;
 
             // Friending Options
@@ -773,6 +778,7 @@ namespace AzzyAIConfig
             _Berserk_ComboAlways = Convert.ToBoolean(H_Config.Berserk_ComboAlways);
             // PVP Options
             _PVPmode = Convert.ToBoolean(H_Config.PVPmode);
+            _PVPAutoAllyOnGiveUp = Convert.ToBoolean(H_Config.PVPAutoAllyOnGiveUp);
         }
 
         #region Basic Options
@@ -1328,14 +1334,14 @@ namespace AzzyAIConfig
             set { _UseSkillOnly = value; }
         }
 
-        bool _UseSkillOnFollow = false;
+        bool _UseSkillOnFollow = true;
         [Category("AutoSkill Options"),
         Description(
             "Set this to true if you want your homunculus to use skills " +
             "while following (not attacking). This allows skills to be used " +
             "while the homunculus is moving to follow you."
             ),
-        DefaultValue(false)]
+        DefaultValue(true)]
         public bool UseSkillOnFollow
         {
             get { return _UseSkillOnFollow; }
@@ -3217,6 +3223,19 @@ int _CastleDefendThreshold = 3;
         get { return _ForceKite; }
         set { _ForceKite = value; }
     }
+    bool _UseBlockedKite = true;
+    [Category("Kiting Options"),
+    Description(
+        "When kiting, learn walls from failed Moves and pick another cell " +
+        "instead of walking the same vector into a corner. Turn off to use " +
+        "the original DoKiteAdjust picker."
+        ),
+    DefaultValue(true)]
+    public bool UseBlockedKite
+    {
+        get { return _UseBlockedKite; }
+        set { _UseBlockedKite = value; }
+    }
     int _FleeHP = 0;
     [Category("Kiting Options"),
     Description("If non-zero and kiting is enabled, only kite below this percent HP"),
@@ -3412,6 +3431,20 @@ int _CastleDefendThreshold = 3;
         {
             get { return _PVPmode; }
             set { _PVPmode = value; }
+        }
+        bool _PVPAutoAllyOnGiveUp = true;
+        [Category("PVP Options"),
+        Description(
+            "When PvP mode is on, if the homunculus gives up on a player it " +
+            "cannot acquire (late WOE/BG joiner, teammate the client will not " +
+            "lock), add that player as ALLY so class tactics stop sending us " +
+            "back at them. Does not overwrite FRIEND, KOS, or ENEMY."
+            ),
+        DefaultValue(true)]
+        public bool PVPAutoAllyOnGiveUp
+        {
+            get { return _PVPAutoAllyOnGiveUp; }
+            set { _PVPAutoAllyOnGiveUp = value; }
         }
         #endregion
     }

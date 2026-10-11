@@ -1,7 +1,7 @@
 -- AzzyAI Constant File
 CVersion="1.54"
-CVersionuaRO="Beta v0.90"  -- uaRO Pre-Renewal modifications version
-ConfigVersion="v1.1"      -- Configuration files version (updated when config options change)
+CVersionuaRO="v1.0"  -- uaRO Pre-Renewal modifications version
+ConfigVersion="v2.0"      -- Configuration files version (updated when config options change)
 
 --[[
 function	TraceAI (string) end

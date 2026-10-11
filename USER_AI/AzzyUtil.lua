@@ -1,6 +1,6 @@
 -------------------------------
 -- Dr. Azzy's AzzyAI v1.54  
--- Modified for uaRO-Pre-Renewal Beta v0.90
+-- Modified for uaRO-Pre-Renewal v1.0
 -- This file is part of AzzyAI
 -- Original by Dr. Azzy of iRO Chaos
 --
@@ -61,7 +61,7 @@ SkillObject(MyID,MySkillLevel,ML_BRANDISH,GetBestBrandishTarget(MyID))
 @@@@@@@@@@@@@@@@@@@@@@@
 
 GetAtkSkill(id)
-Returns a list containing skill id, skill level of the mercenary's single target offencive skill. Crash is not returned in this list, because the damage output spamming crash is lower than the damage output from using normal attacks. 
+Returns a list containing skill id, skill level of the mercenary's single target offencive skill. Crash is first on AtkSkillList for sword/lancer mercenaries that have it. 
 
 ex: 
 local skill,level= GetAtkSkill(MyID)
@@ -99,6 +99,7 @@ As GetMobSkill() only returns the ID and other perameters for the pushback skill
 
 function 	GetTact(t,m)
 	local x
+	local e = 0
 	if m==nil then
 		TraceAI("GetTact: Error - nil target")
 		logappend("AAI_ERROR","GetTact: Error - nil target")
@@ -110,38 +111,39 @@ function 	GetTact(t,m)
 	if (IsPlayer(m)==1) then
 		if (PVPmode~=0) then
 			TraceAI("GetTact: Returning pvp tactic")
-			return GetPVPTact(t,m)
+			x = GetPVPTact(t,m)
+			e = GetV(V_HOMUNTYPE,m)
 		else
 			TraceAI("GetTact: not pvp mode returning 0")
 			return 0
 		end
-	end
-	local e = 0
-	if (IsHomun(MyID)==0) then 
-		if (MobID[m]==nil) then
-			e=GetClass(m)
-		else
-			e=MobID[m]
-		end
 	else
-		e=GetV(V_HOMUNTYPE,m)
-	end
-	temp=GetMyTact(e)
-	if (temp==nil) then
-		if (e >= 1324 and e <= 1363) or (e >= 1938 and e <=1946) then
-			temp=GetMyTact(13)
-			TraceAI("GetTact: No tactic "..t.." for "..e.."actor: "..m.." but it's a treasure chest.")
+		if (IsHomun(MyID)==0) then
+			if (MobID[m]==nil) then
+				e=GetClass(m)
+			else
+				e=MobID[m]
+			end
+		else
+			e=GetV(V_HOMUNTYPE,m)
 		end
-		if temp==nil then
+		temp=GetMyTact(e)
+		if (temp==nil) then
+			if (e >= 1324 and e <= 1363) or (e >= 1938 and e <=1946) then
+				temp=GetMyTact(13)
+				TraceAI("GetTact: No tactic "..t.." for "..e.."actor: "..m.." but it's a treasure chest.")
+			end
+			if temp==nil then
+				temp=GetMyTact(0)
+				--TraceAI("GetTact: No tactic "..t.." for "..e.."actor: "..m.." using default instead")
+			end
+		end
+		if (temp[t]==nil) then
 			temp=GetMyTact(0)
-			--TraceAI("GetTact: No tactic "..t.." for "..e.."actor: "..m.." using default instead")
+			TraceAI("GetTact: Undefined tactic "..t.." for "..e.."actor: "..m.." using default instead")
 		end
+		x=temp[t]
 	end
-	if (temp[t]==nil) then
-		temp=GetMyTact(0)
-		TraceAI("GetTact: Undefined tactic "..t.." for "..e.."actor: "..m.." using default instead")
-	end
-	x=temp[t]
 	if (x==nil) then
 		logappend("AAI_ERROR","Default tactic "..t.." is undefined - Please review and correct tactics file or restore default tactics file")
 		return 0
@@ -150,7 +152,7 @@ function 	GetTact(t,m)
 			x = AttackSkillReserveSP
 		elseif t==TACT_CHASE then
 			--TraceAI("TactChase called"..GetV(V_SP,MyID).." "..ChaseSPPauseSP.." "..GetTick().." "..math.max(LastMovedTime,LastSPTime).." "..(5000-ChaseSPPauseTime))
-			if GetV(V_SP,MyID) < ChaseSPPauseSP and (GetTick() - math.max(LastMovedTime,LastSPTime)) > (5000-ChaseSPPauseTime) then 
+			if GetV(V_SP,MyID) < ChaseSPPauseSP and (GetTick() - math.max(LastMovedTime,LastSPTime)) > (5000-ChaseSPPauseTime) then
 				if ((ChaseSPPause==1 and x~=CHASE_ALWAYS) or x==CHASE_CLEVER) then
 					TraceAI("Cleverchase activated: "..m.." ("..e..") ".." LastTick "..math.max(LastMovedTime,LastSPTime))
 					return 1
@@ -174,27 +176,24 @@ end
 
 function	GetPVPTact(t,m)
 	local x
-	local class
+	local class = GetV(V_HOMUNTYPE,m)
 	local e = ENEMY
 	if IsMonster(m)==0 then
 		TraceAI("pvp tact lookup on ally")
 		e= ALLY
 	end
-	if (MyPVPTact[m]~=nil) then
-		e = m
-	elseif (MyFriends[m]~=nil) then
-		e = MyFriends[m]
-	end
-	if IsHomun(MyID)==1 then
-		class=GetV(V_HOMUNTYPE,m)
-	end
+	-- Friend-list role must beat job-class rows. Class tactics are for
+	-- unlisted enemies only (guild/team on FRIEND or ALLY stay ignored).
 	if MyPVPTact[m]~=nil then
 		x=MyPVPTact[m][t]
-	elseif e~=ALLY and class~=nil then 
-		if MyPVPTact[class] ~=nil then
-			x=MyPVPTact[class][t]
-		end
-	elseif MyFriends[e]==nil then
+		e = m
+	elseif MyFriends[m]~=nil and MyPVPTact[MyFriends[m]]~=nil then
+		e = MyFriends[m]
+		x=MyPVPTact[e][t]
+	elseif class~=nil and MyPVPTact[class]~=nil then
+		x=MyPVPTact[class][t]
+		e = class
+	elseif MyPVPTact[e]~=nil then
 		x=MyPVPTact[e][t]
 	end
 	if x==nil then
@@ -314,12 +313,14 @@ end
 function IsFriendOrSelf(id)
 	if (id==GetV(V_OWNER,MyID) or id == MyID) then
 		return 1
-	else
-		if (MyFriends[id]~=nil) then
-			return 1	
-		end
 	end
-	return 0
+	local friendclass=MyFriends[id]
+	-- KOS/ENEMY are list entries, not teammates. Rescue and KS checks
+	-- must not treat them as allies.
+	if friendclass==nil or friendclass==KOS or friendclass==ENEMY then
+		return 0
+	end
+	return 1
 end
 
 function IsPlayer(id)
@@ -328,6 +329,24 @@ function IsPlayer(id)
 	else
 		return 0
 	end
+end
+
+-- NPCs that use a monster sprite. IsMonster() treats them as enemies
+-- and the pet chases an unkillable target. Match Azzy's Eden Bathory skip.
+function IsIgnoredNPC(id,x,y)
+	if id==nil or x==nil or y==nil then
+		return 0
+	end
+	if GetV(V_MOTION,id)~=MOTION_STAND then
+		return 0
+	end
+	if GetV(V_HOMUNTYPE,id)==1102 and x==174 and y==33 then
+		return 1 -- Eden group Bathory
+	end
+	if x==174 and y==136 then
+		return 1 -- uaRO prt_in monster-model NPC
+	end
+	return 0
 end
 
 function UpdateFriends() 
@@ -344,6 +363,34 @@ function UpdateFriends()
 		TraceAI("Failed to open A_Friends.lua for writing!")
 		logappend("AAI_ERROR","Failed to open A_Friends.lua for writing!")
 	end
+end
+
+-- PvP late-joiner safety net (Thort AllyCheck idea, Azzy-sized):
+-- after a real give-up on a player we cannot acquire, remember them as ALLY
+-- so class tactics stop sending us back at them. Does not overwrite
+-- FRIEND / ALLY / RETAINER / PKFRIEND / KOS / ENEMY.
+function TryPVPAutoAlly(id)
+	if PVPAutoAllyOnGiveUp~=1 or PVPmode==0 or id==nil or id==0 then
+		return
+	end
+	if IsPlayer(id)~=1 then
+		return
+	end
+	local role=MyFriends[id]
+	if role==FRIEND or role==ALLY or role==RETAINER or role==PKFRIEND or role==KOS or role==ENEMY then
+		return
+	end
+	MyFriends[id]=ALLY
+	UpdateFriends()
+	TraceAI("PVP auto-ally: could not acquire player "..id.." - added as ALLY")
+end
+
+function GiveUpTarget(id)
+	if id==nil or id==0 then
+		return
+	end
+	Unreachable[id]=1
+	TryPVPAutoAlly(id)
 end
 
 --########################
@@ -2315,18 +2362,27 @@ function DoSkill(skill,level,target,mode,targx,targy)
 		end
 	end
 	delay=AutoSkillDelay + GetSkillInfo(skill,4,level)+GetSkillInfo(skill,5,level)*CastTimeRatio
-	
-	-- Song buff optimization: Skip AutoSkillDelay when buffed by bard songs
+	local reuse=0
+	if AutoSkillCooldown[skill]~=nil then
+		reuse=GetSkillInfo(skill,9,level)
+	end
+
+	-- Bard songs remove after-cast delay. Keep reuse (field 9) as the retry floor
+	-- so we can recast fast without SkillObject every tick.
 	if (SingBuffed == 1) then
 		delay = GetSkillInfo(skill,4,level)+GetSkillInfo(skill,5,level)*CastTimeRatio
-		TraceAI("Song buffed - skipping AutoSkillDelay for faster casting")
+		TraceAI("Song buffed - skipping AutoSkillDelay and aftercast for faster casting")
 	end
-	
+
 	AutoSkillCastTimeout=delay+GetTick()
 	if AutoSkillCooldown[skill]~=nil then
-		AutoSkillCooldown[skill]=GetTick()+GetSkillInfo(skill,9,level)+delay
+		AutoSkillCooldown[skill]=GetTick()+reuse+delay
 	end
-	delay = delay + GetSkillInfo(skill,6,level)
+	if (SingBuffed == 1) then
+		delay = delay + reuse
+	else
+		delay = delay + GetSkillInfo(skill,6,level)
+	end
 	AutoSkillTimeout=GetTick()+delay
 	if AutoSkillCooldown[skill]~=nil then
 		TraceAI("DoSkill: "..skill.." level:"..level.." target:"..target.." mode:"..targetmode.." delay "..delay.." cooldown: "..AutoSkillCooldown[skill]-GetTick())
