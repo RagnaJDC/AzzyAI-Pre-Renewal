@@ -16,7 +16,7 @@ OpportunisticTargeting   = 0
 DoNotChase               = 0
 UseDanceAttack           = 0
 SuperPassive             = 0
-PVPmode                  = 1
+PVPmode                  = 0
 PVPAutoAllyOnGiveUp      = 1 -- 1 = add unhittable PvP players as ALLY after give-up
 AttackLastHPSP           = 80
 UseIdleWalk              = 0
@@ -82,7 +82,7 @@ KiteThreshold            = 3
 KiteParanoidThreshold    = 2
 KiteParanoid             = 1 
 ForceKite                = 0
-UseBlockedKite           = 0 -- 1 = learn walls from failed kite Moves; 0 = old DoKiteAdjust
+UseBlockedKite           = 1 -- 1 = learn walls from failed kite Moves; 0 = old DoKiteAdjust
 
 --Standby Behavior:
 DefendStandby            = 1 

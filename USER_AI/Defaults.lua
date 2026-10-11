@@ -30,6 +30,7 @@ DoNotChase				=0
 UseDanceAttack			=0
 SuperPassive			=0
 PVPMode					=0
+PVPmode					=0
 PVPAutoAllyOnGiveUp		=1 -- 1 = in PvP, add unhittable players as ALLY after give-up
 AttackLastHPSP			=80
 UseIdleWalk				=0

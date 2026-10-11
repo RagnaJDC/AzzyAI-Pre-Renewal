@@ -1,4 +1,8 @@
 1.0
+⦁	Ship defaults are PvE: PVPmode off, kite off
+    H_Config and M_Config: PVPmode=0, KiteMonsters=0, ForceKite=0, UseBlockedKite=1.
+    Turn on PvP or kite in AzzyAiConfigPreRe.exe when you want them.
+
 ⦁	Release 1.0: version locks, config v2.0, new AzzyAiConfigPreRe.exe
     CVersionuaRO is v1.0 and ConfigVersion is v2.0. Rebuild the GUI so Save
     writes UseBlockedKite and PVPAutoAllyOnGiveUp. File-size integrity matches
