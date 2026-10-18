@@ -92,6 +92,16 @@ As GetMobSkill() only returns the ID and other perameters for the pushback skill
 
 --]]--
 
+local OriginalGetV = GetV 
+function GetV(vtype, id, ...) 
+	if (id == nil or id == 0) then 
+		id = MyID
+	end
+	if (id == nil or id == 0) then 
+		return nil 
+	end
+	return OriginalGetV(vtype, id, ...) 
+end
 
 --#########################
 --### Tactics Functions ###
