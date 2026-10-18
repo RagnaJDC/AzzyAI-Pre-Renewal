@@ -3760,7 +3760,7 @@ function AI(myid)
 					MySkill=skill
 					MySkillLevel=level
 					MyEnemy=k
-					MyState=OnSKILL_OBJECT_CMD_ST
+					MyState=SKILL_OBJECT_CMD_ST
 					TraceAI("CAST_REACT_(skill) being enabled against target"..k.." with tactic "..tactcast.." with "..FormatSkill(skill,level))
 					break
 				end
