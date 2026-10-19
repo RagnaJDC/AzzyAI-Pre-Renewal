@@ -1931,7 +1931,7 @@ function OnSKILL_OBJECT_CMD_ST ()
 			local ex,ey=GetV(V_POSITION,MyEnemy)
 			local hx,hy=GetV(V_POSITION,MyID)
 			local ox,oy=GetV(V_POSITION,GetV(V_OWNER,MyID))
-			logappend("AAI_ERROR","Anomalous move in progress: h "..formatpos(hx,hy).." "..formatmotion(GetV(V_MOTION,MyID)).." e "..formatpos(ex,ey).." "..formatmotion(GetV(V_MOTION,MyEnemy)).." o "..formatpos(ox,oy).." "..formatmotion(GetV(V_MOTION,GetV(V_OWNER,MyID))).." dest "..formatpos(x,y))
+			logappend("AAI_ERROR","Anomalous move in progress: h "..formatpos(hx,hy).." "..FormatMotion(GetV(V_MOTION,MyID)).." e "..formatpos(ex,ey).." "..FormatMotion(GetV(V_MOTION,MyEnemy)).." o "..formatpos(ox,oy).." "..FormatMotion(GetV(V_MOTION,GetV(V_OWNER,MyID))).." dest "..formatpos(x,y))
 		end
 		Move(MyID,x,y)
 		SkillObjectCMDTimeout=SkillObjectCMDTimeout+1
