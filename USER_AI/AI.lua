@@ -103,7 +103,7 @@ function WriteStartupLog(Version,ErrorCode,ErrorInfo)
 	end
 	
 	-- Core file integrity checking for uaRO modified version
-	if fsize("./AI/USER_AI/AzzyUtil.lua")==85856 then
+	if fsize("./AI/USER_AI/AzzyUtil.lua")==85905 then
 		AzzyUtilVers="Default uaRO version"
 	else
 		AzzyUtilVers="Custom, modified from uaRO baseline"

@@ -792,6 +792,9 @@ function IsHiddenOnScreen(myid) --Currently disabled - assume there is never hid
 end
 
 function IsHomun(myid)
+	if myid==nil or myid==0 then
+		return 0
+	end
 	if (GetV(V_HOMUNTYPE,myid)~=nil) then
 		return 1
 	end

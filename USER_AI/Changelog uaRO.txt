@@ -1,4 +1,8 @@
 1.0
+⦁	IsHomun no longer calls GetV on a nil or zero id
+    Kite could pass a stale target into IsHomun, and GetV(V_HOMUNTYPE) threw.
+    Bad ids return 0. GetV itself is unchanged.
+
 ⦁	formatmotion typo crashed skill-object standpoint logging
     GetStandPoint coords under 10,10 called formatmotion, which does not exist.
     The string is built before the log toggle, so kite/skill positioning threw
