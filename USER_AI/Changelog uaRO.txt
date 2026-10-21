@@ -1,4 +1,16 @@
 1.0
+⦁	formatmotion typo crashed skill-object standpoint logging
+    GetStandPoint coords under 10,10 called formatmotion, which does not exist.
+    The string is built before the log toggle, so kite/skill positioning threw
+    even with AAI_ERROR off. From Darokebi PR #3 (FormatMotion only).
+
+⦁	CAST_REACT assigned the skill-object function to MyState
+    MyState=OnSKILL_OBJECT_CMD_ST stored a function instead of state 10, so the
+    dispatcher never entered the skill-object state and fell back to idle.
+
+⦁	Homunculus integrity expected the old AI_main size
+    AI.lua still compared AI_main.lua to 126006 after the 1.0 rewrite.
+
 ⦁	Ship defaults are PvE: PVPmode off, kite off
     H_Config and M_Config: PVPmode=0, KiteMonsters=0, ForceKite=0, UseBlockedKite=1.
     Turn on PvP or kite in AzzyAiConfigPreRe.exe when you want them.

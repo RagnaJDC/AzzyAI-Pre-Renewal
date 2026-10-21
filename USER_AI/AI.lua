@@ -117,7 +117,7 @@ function WriteStartupLog(Version,ErrorCode,ErrorInfo)
 		ErrorCode="File integrity warning"
 		ErrorInfo=ErrorInfo.."Const_.lua has been modified from expected uaRO version\n"
 	end
-	if fsize("./AI/USER_AI/AI_main.lua")==126006 then
+	if fsize("./AI/USER_AI/AI_main.lua")==131197 then
 		MainVers="Default uaRO version"
 	else
 		MainVers="Custom, modified from uaRO baseline"
